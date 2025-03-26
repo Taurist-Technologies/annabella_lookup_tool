@@ -41,3 +41,7 @@ class SearchRequest(BaseModel):
     state: str
     insurance_provider: str
     email: EmailStr
+
+
+class BulkDMERequest(BaseModel):
+    dmes: List[DMEProvider]
