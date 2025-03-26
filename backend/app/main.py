@@ -2,6 +2,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 import os
+import uvicorn
+from app.api import routes
+
 
 # Load environment variables
 load_dotenv()
@@ -11,6 +14,9 @@ app = FastAPI(
     description="API for searching Durable Medical Equipment providers",
     version="1.0.0",
 )
+
+# Include the router with a prefix
+app.include_router(routes.router, prefix="/api")
 
 # Configure CORS
 app.add_middleware(

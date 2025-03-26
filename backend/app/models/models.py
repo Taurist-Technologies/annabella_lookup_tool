@@ -5,11 +5,19 @@ from datetime import datetime
 
 class DMEProvider(BaseModel):
     id: Optional[int] = None
-    name: str
+    company_name: str
     state: str
     insurance_providers: List[str]
-    contact_info: str
-    location: str
+    phone_number: str
+    email: EmailStr
+    weblink: str
+    multiple_pump_models: bool
+    upgrade_pumps_available: bool
+    resupply_available: bool
+    accessories_available: bool
+    lactation_services_available: bool
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
 
 
 class UserEmail(BaseModel):

@@ -35,8 +35,8 @@ export function SearchForm({ onSubmit }: SearchFormProps) {
     const fetchData = async () => {
       try {
         const [statesRes, insuranceRes] = await Promise.all([
-          fetch('http://localhost:8000/states'),
-          fetch('http://localhost:8000/insurance-providers'),
+          fetch('http://localhost:8000/api/states'),
+          fetch('http://localhost:8000/api/insurance-providers'),
         ]);
 
         if (!statesRes.ok || !insuranceRes.ok) {

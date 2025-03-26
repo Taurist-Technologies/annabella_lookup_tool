@@ -18,7 +18,7 @@ async def get_states():
         response = supabase.table("states").select("*").execute()
         return response.data
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str("Nah Son.."))
 
 
 @router.get("/insurance-providers", response_model=List[InsuranceProvider])
@@ -34,7 +34,7 @@ async def get_insurance_providers():
 async def search_dme(request: SearchRequest):
     try:
         # Store email
-        supabase.table("user_emails").insert({"email": request.email}).execute()
+        # supabase.table("user_emails").insert({"email": request.email}).execute()
 
         # Query DME providers
         response = (

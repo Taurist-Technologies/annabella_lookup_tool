@@ -3,15 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { SearchForm } from './components/SearchForm';
 import { ResultsList } from './components/ResultsList';
-
-interface DMEProvider {
-  id: number;
-  name: string;
-  state: string;
-  insurance_providers: string[];
-  contact_info: string;
-  location: string;
-}
+import { DMEProvider } from './types';
 
 export default function Home() {
   const [results, setResults] = useState<DMEProvider[]>([]);
@@ -26,7 +18,7 @@ export default function Home() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:8000/search-dme', {
+      const response = await fetch('http://localhost:8000/api/search-dme', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

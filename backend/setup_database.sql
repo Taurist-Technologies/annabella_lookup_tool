@@ -12,13 +12,19 @@ CREATE TABLE insurance_providers (
 );
 
 -- Create dme_providers table
-CREATE TABLE dme_providers (
+Create TABLE dme_providers (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(200) NOT NULL,
+    company_name VARCHAR(200) NOT NULL,
     state CHAR(2) NOT NULL REFERENCES states(abbreviation),
     insurance_providers TEXT[] NOT NULL,
-    contact_info TEXT NOT NULL,
-    location TEXT NOT NULL,
+    phone_number TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    weblink TEXT NOT NULL,
+    multiple_pump_models BOOLEAN NOT NULL,
+    upgrade_pumps_available BOOLEAN NOT NULL,
+    resupply_available BOOLEAN NOT NULL,
+    accessories_available BOOLEAN NOT NULL,
+    lactation_services_available BOOLEAN NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
@@ -112,7 +118,18 @@ INSERT INTO insurance_providers (name) VALUES
     ('Centene');
 
 -- Insert sample data for DME providers
-INSERT INTO dme_providers (name, state, insurance_providers, contact_info, location) VALUES
-    ('ABC Medical Supplies', 'CA', ARRAY['Medicare', 'Blue Cross Blue Shield'], '555-0123', '123 Main St, Los Angeles, CA'),
-    ('XYZ Healthcare', 'NY', ARRAY['Medicaid', 'Aetna'], '555-0124', '456 Oak Ave, New York, NY'),
-    ('Medical Equipment Plus', 'TX', ARRAY['UnitedHealthcare', 'Cigna'], '555-0125', '789 Pine Rd, Houston, TX'); 
+INSERT INTO dme_providers (
+    company_name, state, insurance_providers, phone_number, email, weblink,
+    multiple_pump_models, upgrade_pumps_available, resupply_available,
+    accessories_available, lactation_services_available
+) VALUES
+('HealthyMoms Supplies', 'NY', ARRAY['Aetna', 'Blue Cross', 'Cigna'], '212-555-1234', 'contact@healthymomsupplies.com', 'https://www.healthymomsupplies.com', TRUE, TRUE, TRUE, TRUE, TRUE),
+('MomCare Medical', 'CA', ARRAY['UnitedHealthcare', 'Aetna'], '310-555-9876', 'support@momcaremed.com', 'https://www.momcaremed.com', TRUE, FALSE, TRUE, TRUE, FALSE),
+('LactaLife Solutions', 'TX', ARRAY['Cigna', 'Humana'], '512-555-2233', 'info@lactalife.com', 'https://www.lactalife.com', FALSE, FALSE, TRUE, TRUE, TRUE),
+('PediHealth Direct', 'FL', ARRAY['Blue Cross', 'Molina Healthcare'], '305-555-4567', 'services@pedihealthdirect.com', 'https://www.pedihealthdirect.com', TRUE, TRUE, TRUE, FALSE, FALSE),
+('BabyBloom Medical', 'IL', ARRAY['Aetna', 'UnitedHealthcare', 'Anthem'], '773-555-0101', 'hello@babybloommed.com', 'https://www.babybloommed.com', TRUE, TRUE, TRUE, TRUE, TRUE),
+('PumpExpress DME', 'PA', ARRAY['Cigna', 'Blue Cross'], '215-555-3322', 'orders@pumpexpressdme.com', 'https://www.pumpexpressdme.com', TRUE, TRUE, FALSE, TRUE, TRUE),
+('NurtureNest Providers', 'GA', ARRAY['Humana', 'Kaiser Permanente'], '404-555-8877', 'care@nurturenest.com', 'https://www.nurturenest.com', FALSE, FALSE, FALSE, TRUE, FALSE),
+('CareBridge Medical', 'OH', ARRAY['Anthem', 'Molina Healthcare', 'Aetna'], '614-555-7788', 'connect@carebridgemed.com', 'https://www.carebridgemed.com', TRUE, TRUE, TRUE, TRUE, TRUE),
+('MamaEase Supplies', 'NC', ARRAY['Cigna', 'UnitedHealthcare'], '919-555-3344', 'info@mamaease.com', 'https://www.mamaease.com', TRUE, FALSE, TRUE, FALSE, TRUE),
+('Infinity DME Group', 'MI', ARRAY['Blue Cross', 'Humana'], '313-555-4455', 'support@infinitydmegroup.com', 'https://www.infinitydmegroup.com', TRUE, TRUE, FALSE, FALSE, TRUE);
