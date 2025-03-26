@@ -52,23 +52,23 @@ async def search_dme(request: SearchRequest):
 
 @router.post("/dme", response_model=DMEProvider)
 async def create_dme(dme: DMEProvider):
-    try:
-        # Validate state exists
-        state_response = (
-            supabase.table("states")
-            .select("abbreviation")
-            .eq("abbreviation", dme.state)
-            .execute()
+    # Validate state exists
+    state_response = (
+        supabase.table("states")
+        .select("abbreviation")
+        .eq("abbreviation", dme.state)
+        .execute()
+    )
+    if not state_response.data:
+        raise HTTPException(
+            status_code=400, detail=f"Invalid state abbreviation: {dme.state}"
         )
-        if not state_response.data:
-            raise HTTPException(
-                status_code=400, detail=f"Invalid state abbreviation: {dme.state}"
-            )
 
+    try:
         # Insert the new DME provider
         response = (
             supabase.table("dme_providers")
-            .insert(dme.dict(exclude={"id", "created_at", "updated_at"}))
+            .insert(dme.model_dump(exclude={"id", "created_at", "updated_at"}))
             .execute()
         )
 
@@ -102,7 +102,8 @@ async def create_bulk_dme(request: BulkDMERequest):
 
         # Insert all DME providers
         dme_data = [
-            dme.dict(exclude={"id", "created_at", "updated_at"}) for dme in request.dmes
+            dme.model_dump(exclude={"id", "created_at", "updated_at"})
+            for dme in request.dmes
         ]
         response = supabase.table("dme_providers").insert(dme_data).execute()
 
