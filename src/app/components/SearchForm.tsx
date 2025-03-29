@@ -19,17 +19,21 @@ interface SearchFormProps {
     insurance_provider: string;
     email: string;
   }) => void;
+  isReturningUser?: boolean;
+  userEmail?: string;
 }
 
-export function SearchForm({ onSubmit }: SearchFormProps) {
+export function SearchForm({ onSubmit, isReturningUser = false, userEmail = '' }: SearchFormProps) {
   const [states, setStates] = useState<State[]>([]);
   const [insuranceProviders, setInsuranceProviders] = useState<InsuranceProvider[]>([]);
   const [formData, setFormData] = useState({
     state: '',
     insurance_provider: '',
-    email: '',
+    email: userEmail,
   });
   const [loading, setLoading] = useState(true);
+  const [termsAccepted, setTermsAccepted] = useState(isReturningUser);
+  const [showTermsError, setShowTermsError] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -62,14 +66,26 @@ export function SearchForm({ onSubmit }: SearchFormProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    if (!isReturningUser && !termsAccepted) {
+      setShowTermsError(true);
+      return;
+    }
+    onSubmit({
+      ...formData,
+      email: isReturningUser ? userEmail : formData.email,
+    });
   };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLSelectElement | HTMLInputElement>
   ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (e.target instanceof HTMLInputElement && e.target.type === 'checkbox') {
+      setTermsAccepted(e.target.checked);
+      setShowTermsError(false);
+    } else {
+      const { name, value } = e.target;
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   if (loading) {
@@ -142,50 +158,63 @@ export function SearchForm({ onSubmit }: SearchFormProps) {
               </select>
             </div>
 
-            <div>
-              <div className="mb-2">
-                <label htmlFor="email" className="font-[var(--font-quicksand)] text-[13px] md:text-[15px] font-medium text-[#606060]">
-                  Enter your email
-                </label>
-              </div>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                placeholder="Email"
-                className="w-full px-4 py-3 border border-[#ACACAD] rounded-[14.7px] font-[var(--font-quicksand)] text-[14px] md:text-base bg-[#FCFCFC] focus:border-[#E87F6B] focus:ring-[#E87F6B]"
-              />
-            </div>
-
-            <div className="flex flex-row gap-2 items-center pt-1">
-              <div className="relative w-4 h-4">
-                <input
-                  type="checkbox"
-                  id="terms"
-                  className="appearance-none w-4 h-4 border border-[#ACACAD] rounded checked:bg-[#E87F6B] checked:border-[#E87F6B] transition-colors"
-                />
-                <svg 
-                  className="absolute top-0 left-0 w-4 h-4 pointer-events-none hidden peer-checked:block text-white" 
-                  viewBox="0 0 16 16"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path 
-                    d="M13.3334 4L6.00008 11.3333L2.66675 8" 
-                    stroke="white" 
-                    strokeWidth="2" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round"
+            {!isReturningUser && (
+              <>
+                <div>
+                  <div className="mb-2">
+                    <label htmlFor="email" className="font-[var(--font-quicksand)] text-[13px] md:text-[15px] font-medium text-[#606060]">
+                      Enter your email
+                    </label>
+                  </div>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    placeholder="Email"
+                    className="w-full px-4 py-3 border border-[#ACACAD] rounded-[14.7px] font-[var(--font-quicksand)] text-[14px] md:text-base bg-[#FCFCFC] focus:border-[#E87F6B] focus:ring-[#E87F6B]"
                   />
-                </svg>
-              </div>
-              <label htmlFor="terms" className="font-[var(--font-quicksand)] text-[10px] md:text-[12px] font-medium text-[#606060]">
-                Agree to email terms and conditions
-              </label>
-            </div>
+                </div>
+
+                <div className="flex flex-row gap-2 items-start pt-1">
+                  <div className="relative w-4 h-4">
+                    <input
+                      type="checkbox"
+                      id="terms"
+                      checked={termsAccepted}
+                      onChange={handleChange}
+                      className="appearance-none w-4 h-4 border border-[#ACACAD] rounded checked:bg-[#E87F6B] checked:border-[#E87F6B] transition-colors"
+                    />
+                    <svg 
+                      className="absolute top-0 left-0 w-4 h-4 pointer-events-none hidden peer-checked:block text-white" 
+                      viewBox="0 0 16 16"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path 
+                        d="M13.3334 4L6.00008 11.3333L2.66675 8" 
+                        stroke="white" 
+                        strokeWidth="2" 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                  <div className="flex flex-col">
+                    <label htmlFor="terms" className="font-[var(--font-quicksand)] text-[10px] md:text-[12px] font-medium text-[#606060]">
+                      Agree to email terms and conditions
+                    </label>
+                    {showTermsError && (
+                      <span className="text-red-500 text-[10px] md:text-[11px] font-[var(--font-quicksand)] mt-1">
+                        Please accept the terms and conditions
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
 
             <button
               type="submit"

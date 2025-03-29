@@ -10,6 +10,8 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showResults, setShowResults] = useState(false);
+  const [userEmail, setUserEmail] = useState<string>('');
+  const [isReturningUser, setIsReturningUser] = useState(false);
 
   const handleSearch = async (formData: {
     state: string;
@@ -34,6 +36,8 @@ export default function Home() {
       const data = await response.json();
       setResults(data);
       setShowResults(true);
+      setUserEmail(formData.email);
+      setIsReturningUser(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -42,7 +46,7 @@ export default function Home() {
   };
 
   if (!showResults) {
-    return <SearchForm onSubmit={handleSearch} />;
+    return <SearchForm onSubmit={handleSearch} isReturningUser={isReturningUser} userEmail={userEmail} />;
   }
 
   const hasResults = !loading && !error && results.length > 0;

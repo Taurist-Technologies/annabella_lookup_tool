@@ -34,9 +34,17 @@ async def get_insurance_providers():
 @router.post("/search-dme", response_model=List[DMEProvider])
 async def search_dme(request: SearchRequest):
     try:
-        # Store email
-        # supabase.table("user_emails").insert({"email": request.email}).execute()
-
+        # Check if email exists
+        email_response = (
+            supabase.table("user_emails")
+            .select("*")
+            .eq("email", request.email)
+            .execute()
+        )
+        print(email_response.data)
+        # Only insert if email doesn't exist
+        if not email_response.data:
+            supabase.table("user_emails").insert({"email": request.email}).execute()
         # Query DME providers
         response = (
             supabase.table("dme_providers")

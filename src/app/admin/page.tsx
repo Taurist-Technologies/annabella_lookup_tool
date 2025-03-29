@@ -99,7 +99,7 @@ export default function AdminPage() {
       for (let i = 1; i < lines.length; i++) {
         if (!lines[i].trim()) continue;
         
-        const values = lines[i].split(',').map(value => value.trim());
+        const values = lines[i].split(',').map(value => value.trim().toLowerCase());
         const dme: any = {
           id: i, // Temporary ID for preview
           company_name: values[headers.indexOf('company_name')] || '',
@@ -108,11 +108,11 @@ export default function AdminPage() {
           phone_number: values[headers.indexOf('phone_number')] || '',
           email: values[headers.indexOf('email')] || '',
           weblink: values[headers.indexOf('weblink')] || '',
-          multiple_pump_models: values[headers.indexOf('multiple_pump_models')] === 'true',
-          upgrade_pumps_available: values[headers.indexOf('upgrade_pumps_available')] === 'true',
-          resupply_available: values[headers.indexOf('resupply_available')] === 'true',
-          accessories_available: values[headers.indexOf('accessories_available')] === 'true',
-          lactation_services_available: values[headers.indexOf('lactation_services_available')] === 'true',
+          multiple_pump_models: values[headers.indexOf('multiple_pump_models')] === 'true' || values[headers.indexOf('multiple_pump_models')] === 'yes' || values[headers.indexOf('multiple_pump_models')] === '1',
+          upgrade_pumps_available: values[headers.indexOf('upgrade_pumps_available')] === 'true' || values[headers.indexOf('upgrade_pumps_available')] === 'yes' || values[headers.indexOf('upgrade_pumps_available')] === '1',
+          resupply_available: values[headers.indexOf('resupply_available')] === 'true' || values[headers.indexOf('resupply_available')] === 'yes' || values[headers.indexOf('resupply_available')] === '1',
+          accessories_available: values[headers.indexOf('accessories_available')] === 'true' || values[headers.indexOf('accessories_available')] === 'yes' || values[headers.indexOf('accessories_available')] === '1',
+          lactation_services_available: values[headers.indexOf('lactation_services_available')] === 'true' || values[headers.indexOf('lactation_services_available')] === 'yes' || values[headers.indexOf('lactation_services_available')] === '1',
         };
         dmes.push(dme);
       }
