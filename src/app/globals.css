@@ -5,9 +5,15 @@
 :root {
   --foreground-rgb: 0, 0, 0;
   --background-rgb: 255, 255, 255;
+  --font-meno-banner: Georgia, serif;
+  --font-ga-maamli: system-ui, -apple-system, sans-serif;
+  --font-gibson: Helvetica, Arial, sans-serif;
+  --font-quicksand: Arial, sans-serif;
 }
 
 body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-rgb));
-} 
+}
+
+/* Add any other global styles below */ 

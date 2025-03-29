@@ -81,81 +81,167 @@ export function SearchForm({ onSubmit }: SearchFormProps) {
   }
 
   return (
-    <div className="w-1/2 mx-auto">
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label
-            htmlFor="state"
-            className="block text-sm font-medium text-gray-700"
-          >
-            State
-          </label>
-          <select
-            id="state"
-            name="state"
-            value={formData.state}
-            onChange={handleChange}
-            required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          >
-            <option value="">Select a state</option>
-            {states.map((state) => (
-              <option key={state.id} value={state.abbreviation}>
-                {state.name}
-              </option>
-            ))}
-          </select>
+    <div className="w-full min-h-screen bg-[#FDF8F3] flex flex-col md:flex-row justify-between items-stretch">
+      <div className="flex flex-col justify-start md:justify-center flex-1 px-6 py-6 md:px-[100px] md:py-0">
+        <div className="flex flex-row items-end gap-2 mb-4">
+          <img src="/images/logo.png" alt="Annabella Logo" className="h-5 md:h-8" />
+          <h1 className="font-[var(--font-meno-banner)] text-[14px] md:text-[16px] font-bold leading-none">
+            Insurance Lookup Tool
+          </h1>
         </div>
 
-        <div>
-          <label
-            htmlFor="insurance_provider"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Insurance Provider
-          </label>
-          <select
-            id="insurance_provider"
-            name="insurance_provider"
-            value={formData.insurance_provider}
-            onChange={handleChange}
-            required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          >
-            <option value="">Select an insurance provider</option>
-            {insuranceProviders.map((provider) => (
-              <option key={provider.id} value={provider.name}>
-                {provider.name}
-              </option>
-            ))}
-          </select>
-        </div>
+        <div className="bg-white rounded-lg p-5 space-y-5 w-full md:max-w-[700px] shadow-sm">
+          <h2 className="font-[var(--font-meno-banner)] text-[24px] md:text-[38px] font-bold leading-[1.2] text-black">
+            Find a preferred supplier
+          </h2>
 
-        <div>
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-gray-700"
-          >
-            Email Address
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-          />
-        </div>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <div className="mb-2">
+                <label htmlFor="state" className="font-[var(--font-quicksand)] text-[13px] md:text-[15px] font-medium text-[#606060]">
+                  Select the state of your insurer
+                </label>
+              </div>
+              <select
+                id="state"
+                name="state"
+                value={formData.state}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-3 border border-[#ACACAD] rounded-[14.7px] font-[var(--font-quicksand)] text-[14px] md:text-base focus:border-[#E87F6B] focus:ring-[#E87F6B]"
+              >
+                <option value="">State</option>
+                {states.map((state) => (
+                  <option key={state.id} value={state.abbreviation}>
+                    {state.name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-        <button
-          type="submit"
-          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        >
-          Search
-        </button>
-      </form>
+            <div>
+              <div className="mb-2">
+                <label htmlFor="insurance_provider" className="font-[var(--font-quicksand)] text-[13px] md:text-[15px] font-medium text-[#606060]">
+                  Choose your insurance provider
+                </label>
+              </div>
+              <select
+                id="insurance_provider"
+                name="insurance_provider"
+                value={formData.insurance_provider}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-3 border border-[#ACACAD] rounded-[14.7px] font-[var(--font-quicksand)] text-[14px] md:text-base focus:border-[#E87F6B] focus:ring-[#E87F6B]"
+              >
+                <option value="">Insurance</option>
+                {insuranceProviders.map((provider) => (
+                  <option key={provider.id} value={provider.name}>
+                    {provider.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <div className="mb-2">
+                <label htmlFor="email" className="font-[var(--font-quicksand)] text-[13px] md:text-[15px] font-medium text-[#606060]">
+                  Enter your email
+                </label>
+              </div>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+                placeholder="Email"
+                className="w-full px-4 py-3 border border-[#ACACAD] rounded-[14.7px] font-[var(--font-quicksand)] text-[14px] md:text-base bg-[#FCFCFC] focus:border-[#E87F6B] focus:ring-[#E87F6B]"
+              />
+            </div>
+
+            <div className="flex flex-row gap-2 items-center pt-1">
+              <div className="relative w-4 h-4">
+                <input
+                  type="checkbox"
+                  id="terms"
+                  className="appearance-none w-4 h-4 border border-[#ACACAD] rounded checked:bg-[#E87F6B] checked:border-[#E87F6B] transition-colors"
+                />
+                <svg 
+                  className="absolute top-0 left-0 w-4 h-4 pointer-events-none hidden peer-checked:block text-white" 
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path 
+                    d="M13.3334 4L6.00008 11.3333L2.66675 8" 
+                    stroke="white" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+              <label htmlFor="terms" className="font-[var(--font-quicksand)] text-[10px] md:text-[12px] font-medium text-[#606060]">
+                Agree to email terms and conditions
+              </label>
+            </div>
+
+            <button
+              type="submit"
+              className="w-full bg-[#E87F6B] text-white font-[var(--font-gibson)] text-[14px] md:text-[16px] font-medium py-3 rounded-[6.3px] border border-[#E87F6B] hover:bg-[#e06a53] transition-colors uppercase mt-2"
+            >
+              Submit
+            </button>
+          </form>
+        </div>
+      </div>
+
+      {/* Image section - Shown on both mobile and desktop with different styles */}
+      <div className="md:w-[534px] md:h-screen relative">
+        <img 
+          src="/images/hero-image.png" 
+          alt="Annabella Hero" 
+          className="w-full h-[300px] md:h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#6B1111] to-transparent">
+          <div className="absolute bottom-0 left-0 right-0 flex flex-col items-center gap-3 p-4 text-white">
+            <h2 className="font-[var(--font-meno-banner)] text-[24px] md:text-[35px] font-[700] leading-[1.26] text-center">
+              The ONLY pump that mimics your baby's tongue.
+            </h2>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 md:w-8 md:h-8 rounded-full bg-[#E87F6B] flex items-center justify-center">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M13.3334 4L6.00008 11.3333L2.66675 8" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+              <p className="font-[var(--font-gibson)] text-[12px] md:text-[20.5px] leading-none max-w-[200px] md:max-w-none text-center md:text-left">
+                Shown to increase average milk expression by 50%
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="flex">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <svg key={star} width="16" height="16" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M11 0L14.329 6.67295L21.6074 7.63729L16.3037 12.7646L17.6579 20L11 16.673L4.34215 20L5.69635 12.7646L0.392658 7.63729L7.67101 6.67295L11 0Z" fill="white"/>
+                  </svg>
+                ))}
+              </div>
+              <p className="font-[var(--font-gibson)] text-[16px] md:text-[24.7px] leading-[1.33] tracking-[0.01em]">
+                Trusted by 10k+ Moms
+              </p>
+            </div>
+            <div className="flex gap-3 mt-3">
+              <button className="bg-[#E87F6B] text-white font-[var(--font-gibson)] text-[12px] md:text-[14.7px] font-medium uppercase px-4 md:px-[55px] py-2 md:py-[10.6px] rounded-[4.6px] border border-[#E87F6B] hover:bg-[#e06a53] transition-colors">
+                Shop Collection
+              </button>
+              <button className="bg-[#E87F6B] text-white font-[var(--font-gibson)] text-[12px] md:text-[14.7px] font-medium uppercase px-4 md:px-[55px] py-2 md:py-[10.6px] rounded-[4.6px] border border-[#E87F6B] hover:bg-[#e06a53] transition-colors">
+                Contact Us
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 } 

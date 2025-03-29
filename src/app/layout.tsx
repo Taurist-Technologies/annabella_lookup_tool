@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import './globals.css';
+import { menoBanner, gaMaamli, gibson, quicksand } from './fonts';
 
 export const metadata = {
-  title: 'DME Provider Search',
+  title: 'Annabella Insurance DME Search',
   description: 'Search for Durable Medical Equipment providers in your area',
 }
 
@@ -13,8 +14,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
-        <nav className="bg-white shadow-sm">
+      <body className={`${menoBanner.variable} ${gaMaamli.variable} ${gibson.variable} ${quicksand.variable}`}>
+        {/* <nav className="bg-white shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between h-16">
               <div className="flex">
@@ -34,7 +35,7 @@ export default function RootLayout({
               </div>
             </div>
           </div>
-        </nav>
+        </nav> */}
         {children}
       </body>
     </html>

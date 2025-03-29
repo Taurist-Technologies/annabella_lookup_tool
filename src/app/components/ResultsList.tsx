@@ -17,73 +17,60 @@ export function ResultsList({ results }: ResultsListProps) {
   }
 
   return (
-    <div className="mt-8">
-      <h2 className="text-2xl font-semibold mb-4">Results</h2>
-      <div className="space-y-4">
-        {results.map((provider) => (
-          <div
-            key={provider.id}
-            className="bg-white shadow rounded-lg p-6 hover:shadow-md transition-shadow"
-          >
-            <div className="space-y-2">
-              <h3 className="text-xl font-medium text-gray-900 mb-2">
-                {provider.company_name}
-              </h3>
-              <p className="text-gray-600">
-                <span className="font-medium">Phone:</span> {provider.phone_number}
-              </p>
-              <p className="text-gray-600">
-                <span className="font-medium">Email:</span> {provider.email}
-              </p>
-              <p className="text-gray-600">
-                <span className="font-medium">Website:</span>{' '}
-                <a href={provider.weblink} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                  {provider.weblink}
-                </a>
-              </p>
-              {/* <p className="text-gray-600">
-                <span className="font-medium">State:</span> {provider.state}
-              </p>
-              <p className="text-gray-600">
-                <span className="font-medium">Insurance Providers:</span>{' '}
-                {provider.insurance_providers.join(', ')}
-              </p> */}
-              <div className="mt-4 grid grid-cols-2 gap-2">
-                <div className="flex items-center gap-2">
-                  <span className={`text-xs ${provider.multiple_pump_models ? 'text-green-600' : 'text-red-500'}`}>
-                    {provider.multiple_pump_models ? '✓ ' : '✗ '}
-                  </span>
-                  <span className="font-medium"> Multiple pump models</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className={`text-xs ${provider.upgrade_pumps_available ? 'text-green-600' : 'text-red-500'}`}>
-                    {provider.upgrade_pumps_available ? '✓ ' : '✗ '}
-                  </span>
-                  <span className="font-medium"> Pump upgrades available</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className={`text-xs ${provider.resupply_available ? 'text-green-600' : 'text-red-500'}`}>
-                    {provider.resupply_available ? '✓ ' : '✗ '}
-                  </span>
-                  <span className="font-medium"> Resupply available</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className={`text-xs ${provider.accessories_available ? 'text-green-600' : 'text-red-500'}`}>
-                    {provider.accessories_available ? '✓ ' : '✗ '}
-                  </span>
-                  <span className="font-medium"> Accessories available</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className={`text-xs ${provider.lactation_services_available ? 'text-green-600' : 'text-red-500'}`}>
-                    {provider.lactation_services_available ? '✓ ' : '✗ '}
-                  </span>
-                  <span className="font-medium"> Lactation services</span>
-                </div>
-              </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {results.map((provider) => (
+        <div
+          key={provider.id}
+          className="bg-white rounded-lg p-4 space-y-3"
+        >
+          <h3 className="font-[var(--font-meno-banner)] text-lg font-bold text-black">
+            {provider.company_name}
+          </h3>
+          <div className="space-y-1">
+            <p className="font-[var(--font-ga-maamli)] text-sm">
+              <span className="font-bold">Phone Number:</span> {provider.phone_number}
+            </p>
+            <p className="font-[var(--font-ga-maamli)] text-sm">
+              <span className="font-bold">Email:</span> {provider.email}
+            </p>
+          </div>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="font-[var(--font-gibson)] font-light text-sm">Multiple Pump Models</span>
+              <span className={`text-base ${provider.multiple_pump_models ? 'text-[#60DFD0]' : 'text-[#DE2A2A]'}`}>
+                {provider.multiple_pump_models ? '✓' : '✗'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="font-[var(--font-gibson)] font-light text-sm">Upgrade Pumps Available</span>
+              <span className={`text-base ${provider.upgrade_pumps_available ? 'text-[#60DFD0]' : 'text-[#DE2A2A]'}`}>
+                {provider.upgrade_pumps_available ? '✓' : '✗'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="font-[var(--font-gibson)] font-light text-sm">Resupply Available</span>
+              <span className={`text-base ${provider.resupply_available ? 'text-[#60DFD0]' : 'text-[#DE2A2A]'}`}>
+                {provider.resupply_available ? '✓' : '✗'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="font-[var(--font-gibson)] font-light text-sm">Accessories Available</span>
+              <span className={`text-base ${provider.accessories_available ? 'text-[#60DFD0]' : 'text-[#DE2A2A]'}`}>
+                {provider.accessories_available ? '✓' : '✗'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="font-[var(--font-gibson)] font-light text-sm">Location Services Available</span>
+              <span className={`text-base ${provider.lactation_services_available ? 'text-[#60DFD0]' : 'text-[#DE2A2A]'}`}>
+                {provider.lactation_services_available ? '✓' : '✗'}
+              </span>
             </div>
           </div>
-        ))}
-      </div>
+          <button className="w-full bg-[#E87F6B] text-white font-[var(--font-gibson)] text-base py-3 rounded hover:bg-[#e96c54] transition-colors mt-4">
+            SUBMIT
+          </button>
+        </div>
+      ))}
     </div>
   );
 } 
