@@ -66,9 +66,14 @@ export function ResultsList({ results }: ResultsListProps) {
               </span>
             </div>
           </div>
-          <button className="w-full bg-[#E87F6B] text-white font-[var(--font-gibson)] text-base py-3 rounded hover:bg-[#e96c54] transition-colors mt-4">
-            SUBMIT
-          </button>
+          <a 
+            href={provider.weblink}
+            target="_blank"
+            rel="noopener noreferrer" 
+            className="block w-full bg-[#E87F6B] text-white font-[var(--font-gibson)] text-base py-3 rounded hover:bg-[#e96c54] transition-colors mt-4 text-center"
+          >
+            APPLY NOW
+          </a>
         </div>
       ))}
     </div>

@@ -106,7 +106,7 @@ export function SearchForm({ onSubmit, isReturningUser = false, userEmail = '' }
           </h1>
         </div>
 
-        <div className="bg-white rounded-lg p-5 space-y-5 w-full md:max-w-[700px] shadow-sm">
+        <div className="bg-white rounded-lg p-5 space-y-5 w-full md:max-w-[700px] shadow-sm mt-8">
           <h2 className="font-[var(--font-meno-banner)] text-[24px] md:text-[38px] font-bold leading-[1.2] text-black">
             Find a preferred supplier
           </h2>

@@ -68,7 +68,7 @@ export default function Home() {
       <div className="max-w-[1200px] mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-end gap-2">
-            <img src="/images/logo.png" alt="Annabella Logo" className="h-6 md:h-8"/>
+            <img src="/images/logo.png" alt="Annabella Logo" className="h-6 md:h-8 mb-1"/>
             <h1 className={`font-[var(--font-meno-banner)] text-base font-bold ${hasResults ? 'hidden md:block' : 'block'}`}>
               Insurance Lookup Tool
             </h1>
