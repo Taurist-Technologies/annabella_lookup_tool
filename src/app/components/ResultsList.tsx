@@ -36,31 +36,31 @@ export function ResultsList({ results }: ResultsListProps) {
           </div>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="font-[var(--font-gibson)] font-light text-sm">Multiple Pump Models</span>
+              <span className="font-[var(--font-gibson)] font-normal text-sm">Multiple Pump Models</span>
               <span className={`text-base ${provider.multiple_pump_models ? 'text-[#60DFD0]' : 'text-[#DE2A2A]'}`}>
                 {provider.multiple_pump_models ? '✓' : '✗'}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="font-[var(--font-gibson)] font-light text-sm">Upgrade Pumps Available</span>
+              <span className="font-[var(--font-gibson)] font-normal text-sm">Upgrade Pumps Available</span>
               <span className={`text-base ${provider.upgrade_pumps_available ? 'text-[#60DFD0]' : 'text-[#DE2A2A]'}`}>
                 {provider.upgrade_pumps_available ? '✓' : '✗'}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="font-[var(--font-gibson)] font-light text-sm">Resupply Available</span>
+              <span className="font-[var(--font-gibson)] font-normal text-sm">Resupply Available</span>
               <span className={`text-base ${provider.resupply_available ? 'text-[#60DFD0]' : 'text-[#DE2A2A]'}`}>
                 {provider.resupply_available ? '✓' : '✗'}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="font-[var(--font-gibson)] font-light text-sm">Accessories Available</span>
+              <span className="font-[var(--font-gibson)] font-normal text-sm">Accessories Available</span>
               <span className={`text-base ${provider.accessories_available ? 'text-[#60DFD0]' : 'text-[#DE2A2A]'}`}>
                 {provider.accessories_available ? '✓' : '✗'}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="font-[var(--font-gibson)] font-light text-sm">Location Services Available</span>
+              <span className="font-[var(--font-gibson)] font-normal text-sm">Location Services Available</span>
               <span className={`text-base ${provider.lactation_services_available ? 'text-[#60DFD0]' : 'text-[#DE2A2A]'}`}>
                 {provider.lactation_services_available ? '✓' : '✗'}
               </span>

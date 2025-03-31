@@ -4,6 +4,9 @@ import React, { useState } from 'react';
 import { SearchForm } from './components/SearchForm';
 import { ResultsList } from './components/ResultsList';
 import { DMEProvider } from './types';
+import { config } from './config';
+
+console.log(config.apiUrl);
 
 export default function Home() {
   const [results, setResults] = useState<DMEProvider[]>([]);
@@ -21,7 +24,7 @@ export default function Home() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:8000/api/search-dme', {
+      const response = await fetch(`${config.apiUrl}/api/search-dme`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

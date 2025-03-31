@@ -1,11 +1,11 @@
-import Link from 'next/link';
+import type { Metadata } from 'next';
+import { menoBanner, gibson } from './fonts';
 import './globals.css';
-import { menoBanner, gaMaamli, gibson, quicksand } from './fonts';
 
-export const metadata = {
-  title: 'Annabella Insurance DME Search',
-  description: 'Search for Durable Medical Equipment providers in your area',
-}
+export const metadata: Metadata = {
+  title: 'Annabella Insurance Lookup Tool',
+  description: 'Find insurance providers in your area',
+};
 
 export default function RootLayout({
   children,
@@ -14,7 +14,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={`${menoBanner.variable} ${gaMaamli.variable} ${gibson.variable} ${quicksand.variable}`}>
+      <body className={`${menoBanner.variable} ${gibson.variable}`}>
         {children}
       </body>
     </html>

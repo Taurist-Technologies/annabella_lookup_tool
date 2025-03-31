@@ -10,9 +10,9 @@ from app.api import routes
 load_dotenv()
 
 app = FastAPI(
-    title="DME Search Tool API",
+    title="Annabella DME Search Tool API",
     description="API for searching Durable Medical Equipment providers",
-    version="1.0.0",
+    version=os.getenv("APP_VERSION"),
 )
 
 # Include the router with a prefix
@@ -21,7 +21,7 @@ app.include_router(routes.router, prefix="/api")
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # Frontend URL
+    allow_origins=[os.getenv("FRONTEND_URL")],  # Frontend URL
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -30,7 +30,7 @@ app.add_middleware(
 
 @app.get("/")
 async def root():
-    return {"message": "Welcome to the DME Search Tool API"}
+    return {"message": "Welcome to the Annabella DME Search Tool API"}
 
 
 @app.get("/health")

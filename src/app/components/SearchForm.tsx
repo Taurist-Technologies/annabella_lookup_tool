@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { config } from '../config';
 
 interface State {
   id: number;
@@ -39,8 +40,8 @@ export function SearchForm({ onSubmit, isReturningUser = false, userEmail = '' }
     const fetchData = async () => {
       try {
         const [statesRes, insuranceRes] = await Promise.all([
-          fetch('http://localhost:8000/api/states'),
-          fetch('http://localhost:8000/api/insurance-providers'),
+          fetch(`${config.apiUrl}/api/states`),
+          fetch(`${config.apiUrl}/api/insurance-providers`),
         ]);
 
         if (!statesRes.ok || !insuranceRes.ok) {
@@ -114,7 +115,7 @@ export function SearchForm({ onSubmit, isReturningUser = false, userEmail = '' }
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <div className="mb-2">
-                <label htmlFor="state" className="font-[var(--font-quicksand)] text-[13px] md:text-[15px] font-medium text-[#606060]">
+                <label htmlFor="state" className="font-[var(--font-gibson)] text-[13px] md:text-[15px] font-medium text-[#606060]">
                   Select the state of your insurer
                 </label>
               </div>
@@ -124,7 +125,7 @@ export function SearchForm({ onSubmit, isReturningUser = false, userEmail = '' }
                 value={formData.state}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 border border-[#ACACAD] rounded-[14.7px] font-[var(--font-quicksand)] text-[14px] md:text-base focus:border-[#E87F6B] focus:ring-[#E87F6B]"
+                className="w-full px-4 py-3 border border-[#ACACAD] rounded-[14.7px] font-[var(--font-gibson)] text-[14px] md:text-base focus:border-[#E87F6B] focus:ring-[#E87F6B]"
               >
                 <option value="">State</option>
                 {states.map((state) => (
@@ -137,7 +138,7 @@ export function SearchForm({ onSubmit, isReturningUser = false, userEmail = '' }
 
             <div>
               <div className="mb-2">
-                <label htmlFor="insurance_provider" className="font-[var(--font-quicksand)] text-[13px] md:text-[15px] font-medium text-[#606060]">
+                <label htmlFor="insurance_provider" className="font-[var(--font-gibson)] text-[13px] md:text-[15px] font-medium text-[#606060]">
                   Choose your insurance provider
                 </label>
               </div>
@@ -147,7 +148,7 @@ export function SearchForm({ onSubmit, isReturningUser = false, userEmail = '' }
                 value={formData.insurance_provider}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 border border-[#ACACAD] rounded-[14.7px] font-[var(--font-quicksand)] text-[14px] md:text-base focus:border-[#E87F6B] focus:ring-[#E87F6B]"
+                className="w-full px-4 py-3 border border-[#ACACAD] rounded-[14.7px] font-[var(--font-gibson)] text-[14px] md:text-base focus:border-[#E87F6B] focus:ring-[#E87F6B]"
               >
                 <option value="">Insurance</option>
                 {insuranceProviders.map((provider) => (
@@ -162,7 +163,7 @@ export function SearchForm({ onSubmit, isReturningUser = false, userEmail = '' }
               <>
                 <div>
                   <div className="mb-2">
-                    <label htmlFor="email" className="font-[var(--font-quicksand)] text-[13px] md:text-[15px] font-medium text-[#606060]">
+                    <label htmlFor="email" className="font-[var(--font-gibson)] text-[13px] md:text-[15px] font-medium text-[#606060]">
                       Enter your email
                     </label>
                   </div>
@@ -174,7 +175,7 @@ export function SearchForm({ onSubmit, isReturningUser = false, userEmail = '' }
                     onChange={handleChange}
                     required
                     placeholder="Email"
-                    className="w-full px-4 py-3 border border-[#ACACAD] rounded-[14.7px] font-[var(--font-quicksand)] text-[14px] md:text-base bg-[#FCFCFC] focus:border-[#E87F6B] focus:ring-[#E87F6B]"
+                    className="w-full px-4 py-3 border border-[#ACACAD] rounded-[14.7px] font-[var(--font-gibson)] text-[14px] md:text-base bg-[#FCFCFC] focus:border-[#E87F6B] focus:ring-[#E87F6B]"
                   />
                 </div>
 
@@ -203,11 +204,11 @@ export function SearchForm({ onSubmit, isReturningUser = false, userEmail = '' }
                     </svg>
                   </div>
                   <div className="flex flex-col">
-                    <label htmlFor="terms" className="font-[var(--font-quicksand)] text-[10px] md:text-[12px] font-medium text-[#606060]">
+                    <label htmlFor="terms" className="font-[var(--font-gibson)] text-[10px] md:text-[12px] font-medium text-[#606060]">
                       Agree to email terms and conditions
                     </label>
                     {showTermsError && (
-                      <span className="text-red-500 text-[10px] md:text-[11px] font-[var(--font-quicksand)] mt-1">
+                      <span className="text-red-500 text-[10px] md:text-[11px] font-[var(--font-gibson)] mt-1">
                         Please accept the terms and conditions
                       </span>
                     )}
@@ -261,12 +262,18 @@ export function SearchForm({ onSubmit, isReturningUser = false, userEmail = '' }
               </p>
             </div>
             <div className="flex gap-3 mt-3">
-              <button className="bg-[#E87F6B] text-white font-[var(--font-gibson)] text-[12px] md:text-[14.7px] font-medium uppercase px-4 md:px-[55px] py-2 md:py-[10.6px] rounded-[4.6px] border border-[#E87F6B] hover:bg-[#e06a53] transition-colors">
+              <a 
+                href="https://annabella-pump.com/collections/all-products"
+                className="bg-[#E87F6B] text-white font-[var(--font-gibson)] text-[12px] md:text-[14.7px] font-medium uppercase px-4 md:px-[55px] py-2 md:py-[10.6px] rounded-[4.6px] border border-[#E87F6B] hover:bg-[#e06a53] transition-colors"
+              >
                 Shop Collection
-              </button>
-              <button className="bg-[#E87F6B] text-white font-[var(--font-gibson)] text-[12px] md:text-[14.7px] font-medium uppercase px-4 md:px-[55px] py-2 md:py-[10.6px] rounded-[4.6px] border border-[#E87F6B] hover:bg-[#e06a53] transition-colors">
+              </a>
+              <a
+                href="https://annabella-pump.com/pages/contact"
+                className="bg-[#E87F6B] text-white font-[var(--font-gibson)] text-[12px] md:text-[14.7px] font-medium uppercase px-4 md:px-[55px] py-2 md:py-[10.6px] rounded-[4.6px] border border-[#E87F6B] hover:bg-[#e06a53] transition-colors"
+              >
                 Contact Us
-              </button>
+              </a>
             </div>
           </div>
         </div>

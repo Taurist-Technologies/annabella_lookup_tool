@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ResultsList } from '../../components/ResultsList';
 import { DMEProvider } from '../../types';
-
+import { config } from '../../config';
 export default function BulkUploadPage() {
   const router = useRouter();
   const [error, setError] = useState<string>('');
@@ -57,7 +57,7 @@ export default function BulkUploadPage() {
     setSuccess('');
 
     try {
-      const response = await fetch('http://localhost:8000/api/dme/bulk', {
+      const response = await fetch(`${config.apiUrl}/api/dme/bulk`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

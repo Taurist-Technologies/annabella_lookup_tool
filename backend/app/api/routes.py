@@ -1,3 +1,8 @@
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
 from fastapi import APIRouter, HTTPException
 from ..models.models import (
     SearchRequest,
@@ -16,7 +21,7 @@ router = APIRouter()
 @router.get("/states", response_model=List[State])
 async def get_states():
     try:
-        response = supabase.table("states").select("*").execute()
+        response = supabase.table(os.getenv("STATES_TABLE")).select("*").execute()
         return response.data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str("Nah Son.."))
@@ -25,7 +30,9 @@ async def get_states():
 @router.get("/insurance-providers", response_model=List[InsuranceProvider])
 async def get_insurance_providers():
     try:
-        response = supabase.table("insurance_providers").select("*").execute()
+        response = (
+            supabase.table(os.getenv("INSURANCE_PROVIDERS_TABLE")).select("*").execute()
+        )
         return response.data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -36,7 +43,7 @@ async def search_dme(request: SearchRequest):
     try:
         # Check if email exists
         email_response = (
-            supabase.table("user_emails")
+            supabase.table(os.getenv("USER_EMAILS_TABLE"))
             .select("*")
             .eq("email", request.email)
             .execute()
@@ -44,10 +51,12 @@ async def search_dme(request: SearchRequest):
         print(email_response.data)
         # Only insert if email doesn't exist
         if not email_response.data:
-            supabase.table("user_emails").insert({"email": request.email}).execute()
+            supabase.table(os.getenv("USER_EMAILS_TABLE")).insert(
+                {"email": request.email}
+            ).execute()
         # Query DME providers
         response = (
-            supabase.table("dme_providers")
+            supabase.table(os.getenv("DME_PROVIDERS_TABLE"))
             .select("*")
             .eq("state", request.state)
             .contains("insurance_providers", [request.insurance_provider])
@@ -62,7 +71,7 @@ async def search_dme(request: SearchRequest):
 async def create_dme(dme: DMEProvider):
     # Validate state exists
     state_response = (
-        supabase.table("states")
+        supabase.table(os.getenv("STATES_TABLE"))
         .select("abbreviation")
         .eq("abbreviation", dme.state)
         .execute()
@@ -75,7 +84,7 @@ async def create_dme(dme: DMEProvider):
     try:
         # Insert the new DME provider
         response = (
-            supabase.table("dme_providers")
+            supabase.table(os.getenv("DME_PROVIDERS_TABLE"))
             .insert(dme.model_dump(exclude={"id", "created_at", "updated_at"}))
             .execute()
         )
@@ -94,7 +103,7 @@ async def create_bulk_dme(request: BulkDMERequest):
         # Validate states exist
         states = set(dme.state for dme in request.dmes)
         state_response = (
-            supabase.table("states")
+            supabase.table(os.getenv("STATES_TABLE"))
             .select("abbreviation")
             .in_("abbreviation", list(states))
             .execute()
@@ -113,7 +122,9 @@ async def create_bulk_dme(request: BulkDMERequest):
             dme.model_dump(exclude={"id", "created_at", "updated_at"})
             for dme in request.dmes
         ]
-        response = supabase.table("dme_providers").insert(dme_data).execute()
+        response = (
+            supabase.table(os.getenv("DME_PROVIDERS_TABLE")).insert(dme_data).execute()
+        )
 
         if not response.data:
             raise HTTPException(
