@@ -1,15 +1,7 @@
 'use client';
 
 import React from 'react';
-
-interface DMEProvider {
-  id: number;
-  name: string;
-  state: string;
-  insurance_providers: string[];
-  contact_info: string;
-  location: string;
-}
+import { DMEProvider } from '../types';
 
 interface ResultsListProps {
   results: DMEProvider[];
@@ -25,35 +17,65 @@ export function ResultsList({ results }: ResultsListProps) {
   }
 
   return (
-    <div className="mt-8">
-      <h2 className="text-2xl font-semibold mb-4">Search Results</h2>
-      <div className="space-y-4">
-        {results.map((provider) => (
-          <div
-            key={provider.id}
-            className="bg-white shadow rounded-lg p-6 hover:shadow-md transition-shadow"
-          >
-            <h3 className="text-xl font-medium text-gray-900 mb-2">
-              {provider.name}
-            </h3>
-            <div className="space-y-2 text-gray-600">
-              <p>
-                <span className="font-medium">Location:</span> {provider.location}
-              </p>
-              <p>
-                <span className="font-medium">Contact:</span> {provider.contact_info}
-              </p>
-              <p>
-                <span className="font-medium">State:</span> {provider.state}
-              </p>
-              <p>
-                <span className="font-medium">Insurance Providers:</span>{' '}
-                {provider.insurance_providers.join(', ')}
-              </p>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {results.map((provider) => (
+        <div
+          key={provider.id}
+          className="bg-white rounded-lg p-4 space-y-3"
+        >
+          <h3 className="font-[var(--font-meno-banner)] text-lg font-bold text-black">
+            {provider.company_name}
+          </h3>
+          <div className="space-y-1">
+            <p className="font-[var(--font-ga-maamli)] text-sm">
+              <span className="font-bold">Phone Number:</span> {provider.phone_number}
+            </p>
+            <p className="font-[var(--font-ga-maamli)] text-sm">
+              <span className="font-bold">Email:</span> {provider.email}
+            </p>
+          </div>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="font-[var(--font-gibson)] font-normal text-sm">Multiple Pump Models</span>
+              <span className={`text-base ${provider.multiple_pump_models ? 'text-[#60DFD0]' : 'text-[#DE2A2A]'}`}>
+                {provider.multiple_pump_models ? '✓' : '✗'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="font-[var(--font-gibson)] font-normal text-sm">Upgrade Pumps Available</span>
+              <span className={`text-base ${provider.upgrade_pumps_available ? 'text-[#60DFD0]' : 'text-[#DE2A2A]'}`}>
+                {provider.upgrade_pumps_available ? '✓' : '✗'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="font-[var(--font-gibson)] font-normal text-sm">Resupply Available</span>
+              <span className={`text-base ${provider.resupply_available ? 'text-[#60DFD0]' : 'text-[#DE2A2A]'}`}>
+                {provider.resupply_available ? '✓' : '✗'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="font-[var(--font-gibson)] font-normal text-sm">Accessories Available</span>
+              <span className={`text-base ${provider.accessories_available ? 'text-[#60DFD0]' : 'text-[#DE2A2A]'}`}>
+                {provider.accessories_available ? '✓' : '✗'}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="font-[var(--font-gibson)] font-normal text-sm">Location Services Available</span>
+              <span className={`text-base ${provider.lactation_services_available ? 'text-[#60DFD0]' : 'text-[#DE2A2A]'}`}>
+                {provider.lactation_services_available ? '✓' : '✗'}
+              </span>
             </div>
           </div>
-        ))}
-      </div>
+          <a 
+            href={provider.weblink}
+            target="_blank"
+            rel="noopener noreferrer" 
+            className="block w-full bg-[#E87F6B] text-white font-[var(--font-gibson)] text-base py-3 rounded hover:bg-[#e96c54] transition-colors mt-4 text-center"
+          >
+            APPLY NOW
+          </a>
+        </div>
+      ))}
     </div>
   );
 } 
