@@ -72,31 +72,31 @@ export default function Home() {
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-end gap-2">
             <img src="/images/logo.png" alt="Annabella Logo" className="h-6 md:h-8 mb-1"/>
-            <h1 className={`font-[var(--font-meno-banner)] text-base font-bold ${hasResults ? 'hidden md:block' : 'block'}`}>
+            <h1 className={`font-meno-banner text-base font-bold ${hasResults ? 'hidden md:block' : 'block'}`}>
               Insurance Lookup Tool
             </h1>
           </div>
           {hasResults && (
             <button 
               onClick={() => setShowResults(false)}
-              className="bg-[#E87F6B] text-white font-[var(--font-gibson)] text-sm font-medium px-4 py-2 rounded border border-[#E87F6B] hover:bg-[#e06a53] transition-colors"
+              className="bg-[#E87F6B] text-white font-gibson text-sm font-medium px-4 py-2 rounded border border-[#E87F6B] hover:bg-[#e06a53] transition-colors"
             >
               New Search
             </button>
           )}
         </div>
         {hasResults && (
-          <h2 className="font-[var(--font-meno-banner)] text-2xl font-bold mb-6">
+          <h2 className="font-meno-banner text-2xl font-bold mb-6">
             Here are your preferred suppliers
           </h2>
         )}
         
         {!hasResults ? (
           <div className="bg-white rounded-lg p-8 text-center">
-            <h3 className="font-[var(--font-meno-banner)] text-xl font-bold text-gray-800 mb-2">
+            <h3 className="font-meno-banner text-xl font-bold text-gray-800 mb-2">
               No Results Found
             </h3>
-            <p className="font-[var(--font-gibson)] text-gray-600 mb-6">
+            <p className="font-gibson text-gray-600 mb-6">
               We couldn't find any providers matching your search criteria.
             </p>
             <p className="font-[var(--font-ga-maamli)] text-sm text-gray-500 mb-4">
@@ -104,7 +104,7 @@ export default function Home() {
             </p>
             <button 
               onClick={() => setShowResults(false)}
-              className="bg-[#E87F6B] text-white font-[var(--font-gibson)] text-sm font-medium px-6 py-3 rounded border border-[#E87F6B] hover:bg-[#e06a53] transition-colors"
+              className="bg-[#E87F6B] text-white font-gibson text-sm font-medium px-6 py-3 rounded border border-[#E87F6B] hover:bg-[#e06a53] transition-colors"
             >
               Start a New Search
             </button>

@@ -9,7 +9,9 @@ export const menoBanner = localFont({
     }
   ],
   variable: '--font-meno-banner',
-  fallback: ['Georgia', 'serif']
+  fallback: ['Georgia', 'serif'],
+  display: 'swap',
+  preload: true
 });
 
 export const gibson = localFont({
@@ -21,5 +23,7 @@ export const gibson = localFont({
     }
   ],
   variable: '--font-gibson',
-  fallback: ['Helvetica', 'Arial', 'sans-serif']
+  fallback: ['Helvetica', 'Arial', 'sans-serif'],
+  display: 'swap',
+  preload: true
 });

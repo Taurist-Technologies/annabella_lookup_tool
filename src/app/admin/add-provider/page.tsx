@@ -115,13 +115,13 @@ export default function AddProviderPage() {
         <div className="flex justify-between items-end gap-2 mb-8">
           <div className="flex flex-row items-end gap-2">
             <img src="/images/logo.png" alt="Annabella Logo" className="h-6 md:h-8 mb-1" />
-            <h1 className="hidden md:block font-[var(--font-meno-banner)] text-base font-bold">
+            <h1 className="hidden md:block font-meno-banner text-base font-bold">
               Add Single DME Provider
             </h1>
           </div>
           <button 
             onClick={() => router.push('/admin')}
-            className="bg-[#E87F6B] text-white font-[var(--font-gibson)] text-sm font-medium px-4 py-2 rounded border border-[#E87F6B] hover:bg-[#e06a53] transition-colors"
+            className="bg-[#E87F6B] text-white font-gibson text-sm font-medium px-4 py-2 rounded border border-[#E87F6B] hover:bg-[#e06a53] transition-colors"
           >
             Back to Admin
           </button>
@@ -142,37 +142,37 @@ export default function AddProviderPage() {
         <div className="flex flex-col lg:flex-row gap-8">
           <div className="w-full lg:w-1/2">
             <div className="bg-white rounded-lg p-8 shadow-sm">
-              <h2 className="font-[var(--font-meno-banner)] text-2xl font-bold mb-6">Provider Details</h2>
+              <h2 className="font-meno-banner text-2xl font-bold mb-6">Provider Details</h2>
               <form onSubmit={handlePreview} className="space-y-6">
                 <div>
-                  <label className="block text-sm font-[var(--font-gibson)] font-medium text-[#606060] mb-2">Company Name</label>
+                  <label className="block text-sm font-gibson font-medium text-[#606060] mb-2">Company Name</label>
                   <input
                     type="text"
                     required
-                    className="w-full px-4 py-3 border border-[#ACACAD] rounded-[14.7px] font-[var(--font-gibson)] text-[14px] bg-[#FCFCFC] focus:border-[#E87F6B] focus:ring-[#E87F6B]"
+                    className="w-full px-4 py-3 border border-[#ACACAD] rounded-[14.7px] font-gibson text-[14px] bg-[#FCFCFC] focus:border-[#E87F6B] focus:ring-[#E87F6B]"
                     value={formData.company_name}
                     onChange={(e) => setFormData(prev => ({ ...prev, company_name: e.target.value }))}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-[var(--font-gibson)] font-medium text-[#606060] mb-2">State (2-letter abbreviation) Example: CA, TX, etc.</label>
+                  <label className="block text-sm font-gibson font-medium text-[#606060] mb-2">State (2-letter abbreviation) Example: CA, TX, etc.</label>
                   <input
                     type="text"
                     required
                     maxLength={2}
-                    className="w-full px-4 py-3 border border-[#ACACAD] rounded-[14.7px] font-[var(--font-gibson)] text-[14px] bg-[#FCFCFC] focus:border-[#E87F6B] focus:ring-[#E87F6B]"
+                    className="w-full px-4 py-3 border border-[#ACACAD] rounded-[14.7px] font-gibson text-[14px] bg-[#FCFCFC] focus:border-[#E87F6B] focus:ring-[#E87F6B]"
                     value={formData.state}
                     onChange={(e) => setFormData(prev => ({ ...prev, state: e.target.value.toUpperCase() }))}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-[var(--font-gibson)] font-medium text-[#606060] mb-2">Insurance Providers (comma-separated) Example: Aetna, Cigna, etc.</label>
+                  <label className="block text-sm font-gibson font-medium text-[#606060] mb-2">Insurance Providers (comma-separated) Example: Aetna, Cigna, etc.</label>
                   <input
                     type="text"
                     required
-                    className="w-full px-4 py-3 border border-[#ACACAD] rounded-[14.7px] font-[var(--font-gibson)] text-[14px] bg-[#FCFCFC] focus:border-[#E87F6B] focus:ring-[#E87F6B]"
+                    className="w-full px-4 py-3 border border-[#ACACAD] rounded-[14.7px] font-gibson text-[14px] bg-[#FCFCFC] focus:border-[#E87F6B] focus:ring-[#E87F6B]"
                     value={insuranceInput}
                     onChange={(e) => {
                       const value = e.target.value;
@@ -188,12 +188,12 @@ export default function AddProviderPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-[var(--font-gibson)] font-medium text-[#606060] mb-2">Phone Number</label>
+                  <label className="block text-sm font-gibson font-medium text-[#606060] mb-2">Phone Number</label>
                   <input
                     type="tel"
                     required
                     maxLength={12}
-                    className="w-full px-4 py-3 border border-[#ACACAD] rounded-[14.7px] font-[var(--font-gibson)] text-[14px] bg-[#FCFCFC] focus:border-[#E87F6B] focus:ring-[#E87F6B]"
+                    className="w-full px-4 py-3 border border-[#ACACAD] rounded-[14.7px] font-gibson text-[14px] bg-[#FCFCFC] focus:border-[#E87F6B] focus:ring-[#E87F6B]"
                     value={formData.phone_number}
                     onChange={(e) => {
                       const formattedNumber = formatPhoneNumber(e.target.value);
@@ -206,29 +206,29 @@ export default function AddProviderPage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-[var(--font-gibson)] font-medium text-[#606060] mb-2">Email</label>
+                  <label className="block text-sm font-gibson font-medium text-[#606060] mb-2">Email</label>
                   <input
                     type="email"
                     required
-                    className="w-full px-4 py-3 border border-[#ACACAD] rounded-[14.7px] font-[var(--font-gibson)] text-[14px] bg-[#FCFCFC] focus:border-[#E87F6B] focus:ring-[#E87F6B]"
+                    className="w-full px-4 py-3 border border-[#ACACAD] rounded-[14.7px] font-gibson text-[14px] bg-[#FCFCFC] focus:border-[#E87F6B] focus:ring-[#E87F6B]"
                     value={formData.email}
                     onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-[var(--font-gibson)] font-medium text-[#606060] mb-2">Website Link (include http:// or https://)</label>
+                  <label className="block text-sm font-gibson font-medium text-[#606060] mb-2">Website Link (include http:// or https://)</label>
                   <input
                     type="url"
                     required
-                    className="w-full px-4 py-3 border border-[#ACACAD] rounded-[14.7px] font-[var(--font-gibson)] text-[14px] bg-[#FCFCFC] focus:border-[#E87F6B] focus:ring-[#E87F6B]"
+                    className="w-full px-4 py-3 border border-[#ACACAD] rounded-[14.7px] font-gibson text-[14px] bg-[#FCFCFC] focus:border-[#E87F6B] focus:ring-[#E87F6B]"
                     value={formData.weblink}
                     onChange={(e) => setFormData(prev => ({ ...prev, weblink: e.target.value }))}
                   />
                 </div>
 
                 <div className="space-y-4">
-                  <h3 className="font-[var(--font-gibson)] text-lg font-medium text-gray-900">Provider Features</h3>
+                  <h3 className="font-gibson text-lg font-medium text-gray-900">Provider Features</h3>
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     <label className="flex items-center gap-2 cursor-pointer bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors">
@@ -238,7 +238,7 @@ export default function AddProviderPage() {
                         checked={formData.multiple_pump_models}
                         onChange={() => handleCheckboxChange('multiple_pump_models')}
                       />
-                      <span className="font-[var(--font-gibson)] font-normal">Multiple Pump Models</span>
+                      <span className="font-gibson font-normal">Multiple Pump Models</span>
                     </label>
 
                     <label className="flex items-center gap-2 cursor-pointer bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors">
@@ -248,7 +248,7 @@ export default function AddProviderPage() {
                         checked={formData.upgrade_pumps_available}
                         onChange={() => handleCheckboxChange('upgrade_pumps_available')}
                       />
-                      <span className="font-[var(--font-gibson)] font-normal">Upgrade Pumps Available</span>
+                      <span className="font-gibson font-normal">Upgrade Pumps Available</span>
                     </label>
 
                     <label className="flex items-center gap-2 cursor-pointer bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors">
@@ -258,7 +258,7 @@ export default function AddProviderPage() {
                         checked={formData.resupply_available}
                         onChange={() => handleCheckboxChange('resupply_available')}
                       />
-                      <span className="font-[var(--font-gibson)] font-normal">Resupply Available</span>
+                      <span className="font-gibson font-normal">Resupply Available</span>
                     </label>
 
                     <label className="flex items-center gap-2 cursor-pointer bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors">
@@ -268,7 +268,7 @@ export default function AddProviderPage() {
                         checked={formData.accessories_available}
                         onChange={() => handleCheckboxChange('accessories_available')}
                       />
-                      <span className="font-[var(--font-gibson)] font-normal">Accessories Available</span>
+                      <span className="font-gibson font-normal">Accessories Available</span>
                     </label>
 
                     <label className="flex items-center gap-2 cursor-pointer bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors">
@@ -278,14 +278,14 @@ export default function AddProviderPage() {
                         checked={formData.lactation_services_available}
                         onChange={() => handleCheckboxChange('lactation_services_available')}
                       />
-                      <span className="font-[var(--font-gibson)] font-normal">Location Services Available</span>
+                      <span className="font-gibson font-normal">Location Services Available</span>
                     </label>
                   </div>
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full bg-[#E87F6B] text-white font-[var(--font-gibson)] text-base py-3 rounded hover:bg-[#e06a53] transition-colors mt-8"
+                  className="w-full bg-[#E87F6B] text-white font-gibson text-base py-3 rounded hover:bg-[#e06a53] transition-colors mt-8"
                   disabled={isPreviewMode}
                 >
                   Preview Provider
@@ -298,17 +298,17 @@ export default function AddProviderPage() {
             <div className="w-full lg:w-1/2">
               <div className="bg-white rounded-lg p-8 shadow-sm">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 mb-6">
-                  <h2 className="font-[var(--font-meno-banner)] text-2xl font-bold">Preview Provider Details</h2>
+                  <h2 className="font-meno-banner text-2xl font-bold">Preview Provider Details</h2>
                   <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
                     <button
                       onClick={() => setIsPreviewMode(false)}
-                      className="w-full sm:w-auto px-6 py-2 bg-gray-100 text-gray-700 font-[var(--font-gibson)] text-sm font-medium rounded border border-gray-200 hover:bg-gray-200 transition-colors"
+                      className="w-full sm:w-auto px-6 py-2 bg-gray-100 text-gray-700 font-gibson text-sm font-medium rounded border border-gray-200 hover:bg-gray-200 transition-colors"
                     >
                       Edit Details
                     </button>
                     <button
                       onClick={handleSubmit}
-                      className="w-full sm:w-auto px-6 py-2 bg-[#E87F6B] text-white font-[var(--font-gibson)] text-sm font-medium rounded border border-[#E87F6B] hover:bg-[#e06a53] transition-colors"
+                      className="w-full sm:w-auto px-6 py-2 bg-[#E87F6B] text-white font-gibson text-sm font-medium rounded border border-[#E87F6B] hover:bg-[#e06a53] transition-colors"
                     >
                       Confirm & Submit
                     </button>
@@ -316,7 +316,7 @@ export default function AddProviderPage() {
                 </div>
                 <div className="grid grid-cols-1 gap-4">
                   <div className="bg-white rounded-lg border border-gray-200 p-6">
-                    <h3 className="font-[var(--font-meno-banner)] text-xl font-bold text-black mb-4">
+                    <h3 className="font-meno-banner text-xl font-bold text-black mb-4">
                       {formData.company_name}
                     </h3>
                     <div className="space-y-2 mb-4">
@@ -329,31 +329,31 @@ export default function AddProviderPage() {
                     </div>
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="font-[var(--font-gibson)] font-normal text-sm">Multiple Pump Models</span>
+                        <span className="font-gibson font-normal text-sm">Multiple Pump Models</span>
                         <span className={`text-base ${formData.multiple_pump_models ? 'text-[#60DFD0]' : 'text-[#DE2A2A]'}`}>
                           {formData.multiple_pump_models ? '✓' : '✗'}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="font-[var(--font-gibson)] font-normal text-sm">Upgrade Pumps Available</span>
+                        <span className="font-gibson font-normal text-sm">Upgrade Pumps Available</span>
                         <span className={`text-base ${formData.upgrade_pumps_available ? 'text-[#60DFD0]' : 'text-[#DE2A2A]'}`}>
                           {formData.upgrade_pumps_available ? '✓' : '✗'}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="font-[var(--font-gibson)] font-normal text-sm">Resupply Available</span>
+                        <span className="font-gibson font-normal text-sm">Resupply Available</span>
                         <span className={`text-base ${formData.resupply_available ? 'text-[#60DFD0]' : 'text-[#DE2A2A]'}`}>
                           {formData.resupply_available ? '✓' : '✗'}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="font-[var(--font-gibson)] font-normal text-sm">Accessories Available</span>
+                        <span className="font-gibson font-normal text-sm">Accessories Available</span>
                         <span className={`text-base ${formData.accessories_available ? 'text-[#60DFD0]' : 'text-[#DE2A2A]'}`}>
                           {formData.accessories_available ? '✓' : '✗'}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="font-[var(--font-gibson)] font-normal text-sm">Location Services Available</span>
+                        <span className="font-gibson font-normal text-sm">Location Services Available</span>
                         <span className={`text-base ${formData.lactation_services_available ? 'text-[#60DFD0]' : 'text-[#DE2A2A]'}`}>
                           {formData.lactation_services_available ? '✓' : '✗'}
                         </span>
@@ -361,7 +361,7 @@ export default function AddProviderPage() {
                     </div>
                     <button
                       onClick={handleSubmit}
-                      className="w-full bg-[#E87F6B] text-white font-[var(--font-gibson)] text-base py-3 rounded hover:bg-[#e06a53] transition-colors mt-6"
+                      className="w-full bg-[#E87F6B] text-white font-gibson text-base py-3 rounded hover:bg-[#e06a53] transition-colors mt-6"
                     >
                       SUBMIT
                     </button>

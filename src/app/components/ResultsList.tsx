@@ -23,7 +23,7 @@ export function ResultsList({ results }: ResultsListProps) {
           key={provider.id}
           className="bg-white rounded-lg p-4 space-y-3"
         >
-          <h3 className="font-[var(--font-meno-banner)] text-lg font-bold text-black">
+          <h3 className="font-meno-banner text-lg font-bold text-black">
             {provider.company_name}
           </h3>
           <div className="space-y-1">
@@ -36,31 +36,31 @@ export function ResultsList({ results }: ResultsListProps) {
           </div>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="font-[var(--font-gibson)] font-normal text-sm">Multiple Pump Models</span>
+              <span className="font-gibson font-normal text-sm">Multiple Pump Models</span>
               <span className={`text-base ${provider.multiple_pump_models ? 'text-[#60DFD0]' : 'text-[#DE2A2A]'}`}>
                 {provider.multiple_pump_models ? '✓' : '✗'}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="font-[var(--font-gibson)] font-normal text-sm">Upgrade Pumps Available</span>
+              <span className="font-gibson font-normal text-sm">Upgrade Pumps Available</span>
               <span className={`text-base ${provider.upgrade_pumps_available ? 'text-[#60DFD0]' : 'text-[#DE2A2A]'}`}>
                 {provider.upgrade_pumps_available ? '✓' : '✗'}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="font-[var(--font-gibson)] font-normal text-sm">Resupply Available</span>
+              <span className="font-gibson font-normal text-sm">Resupply Available</span>
               <span className={`text-base ${provider.resupply_available ? 'text-[#60DFD0]' : 'text-[#DE2A2A]'}`}>
                 {provider.resupply_available ? '✓' : '✗'}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="font-[var(--font-gibson)] font-normal text-sm">Accessories Available</span>
+              <span className="font-gibson font-normal text-sm">Accessories Available</span>
               <span className={`text-base ${provider.accessories_available ? 'text-[#60DFD0]' : 'text-[#DE2A2A]'}`}>
                 {provider.accessories_available ? '✓' : '✗'}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="font-[var(--font-gibson)] font-normal text-sm">Location Services Available</span>
+              <span className="font-gibson font-normal text-sm">Location Services Available</span>
               <span className={`text-base ${provider.lactation_services_available ? 'text-[#60DFD0]' : 'text-[#DE2A2A]'}`}>
                 {provider.lactation_services_available ? '✓' : '✗'}
               </span>
@@ -70,7 +70,7 @@ export function ResultsList({ results }: ResultsListProps) {
             href={provider.weblink}
             target="_blank"
             rel="noopener noreferrer" 
-            className="block w-full bg-[#E87F6B] text-white font-[var(--font-gibson)] text-base py-3 rounded hover:bg-[#e96c54] transition-colors mt-4 text-center"
+            className="block w-full bg-[#E87F6B] text-white font-gibson text-base py-3 rounded hover:bg-[#e96c54] transition-colors mt-4 text-center"
           >
             APPLY NOW
           </a>

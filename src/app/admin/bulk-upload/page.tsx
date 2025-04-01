@@ -84,13 +84,13 @@ export default function BulkUploadPage() {
         <div className="flex justify-between items-end gap-2 mb-8">
           <div className="flex flex-row items-end gap-2">
             <img src="/images/logo.png" alt="Annabella Logo" className="h-6 md:h-8 mb-1" />
-            <h1 className="hidden md:block font-[var(--font-meno-banner)] text-base font-bold">
+            <h1 className="hidden md:block font-meno-banner text-base font-bold">
               Bulk Upload DME Providers
             </h1>
           </div>
           <button 
             onClick={() => router.push('/admin')}
-            className="bg-[#E87F6B] text-white font-[var(--font-gibson)] text-sm font-medium px-4 py-2 rounded border border-[#E87F6B] hover:bg-[#e06a53] transition-colors"
+            className="bg-[#E87F6B] text-white font-gibson text-sm font-medium px-4 py-2 rounded border border-[#E87F6B] hover:bg-[#e06a53] transition-colors"
           >
             Back to Admin
           </button>
@@ -109,7 +109,7 @@ export default function BulkUploadPage() {
         )}
 
         <div className="bg-white rounded-lg p-8 shadow-sm">
-          <h2 className="font-[var(--font-meno-banner)] text-2xl font-bold mb-6">Upload CSV File</h2>
+          <h2 className="font-meno-banner text-2xl font-bold mb-6">Upload CSV File</h2>
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <input
               type="file"
@@ -118,7 +118,7 @@ export default function BulkUploadPage() {
               className="block w-full text-sm text-gray-500
                 file:mr-4 file:py-2 file:px-4
                 file:rounded-md file:border-0
-                file:text-sm file:font-[var(--font-gibson)]
+                file:text-sm file:font-gibson
                 file:bg-[#E87F6B] file:text-white
                 hover:file:bg-[#e06a53] file:transition-colors"
             />
@@ -132,17 +132,17 @@ export default function BulkUploadPage() {
           <div className="mt-8">
             <div className="bg-white rounded-lg p-8 shadow-sm">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0 mb-6">
-                <h2 className="font-[var(--font-meno-banner)] text-2xl font-bold">Preview DME Providers</h2>
+                <h2 className="font-meno-banner text-2xl font-bold">Preview DME Providers</h2>
                 <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
                   <button
                     onClick={() => setIsPreviewMode(false)}
-                    className="w-full sm:w-auto px-6 py-2 bg-gray-100 text-gray-700 font-[var(--font-gibson)] text-sm font-medium rounded border border-gray-200 hover:bg-gray-200 transition-colors"
+                    className="w-full sm:w-auto px-6 py-2 bg-gray-100 text-gray-700 font-gibson text-sm font-medium rounded border border-gray-200 hover:bg-gray-200 transition-colors"
                   >
                     Upload New File
                   </button>
                   <button
                     onClick={handleBulkSubmit}
-                    className="w-full sm:w-auto px-6 py-2 bg-[#E87F6B] text-white font-[var(--font-gibson)] text-sm font-medium rounded border border-[#E87F6B] hover:bg-[#e06a53] transition-colors"
+                    className="w-full sm:w-auto px-6 py-2 bg-[#E87F6B] text-white font-gibson text-sm font-medium rounded border border-[#E87F6B] hover:bg-[#e06a53] transition-colors"
                   >
                     Submit {csvDMEs.length} Provider{csvDMEs.length !== 1 ? 's' : ''}
                   </button>

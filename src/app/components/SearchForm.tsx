@@ -102,20 +102,20 @@ export function SearchForm({ onSubmit, isReturningUser = false, userEmail = '' }
       <div className="flex flex-col justify-start md:justify-center flex-1 px-6 py-6 md:px-[100px] md:py-0">
         <div className="flex flex-row items-end gap-2 mb-4">
           <img src="/images/logo.png" alt="Annabella Logo" className="h-5 md:h-8" />
-          <h1 className="font-[var(--font-meno-banner)] text-[14px] md:text-[16px] font-bold leading-none">
+          <h1 className="font-meno-banner text-[14px] md:text-[16px] font-bold leading-none">
             Insurance Lookup Tool
           </h1>
         </div>
 
         <div className="bg-white rounded-lg p-5 space-y-5 w-full md:max-w-[700px] shadow-sm mt-8">
-          <h2 className="font-[var(--font-meno-banner)] text-[24px] md:text-[38px] font-bold leading-[1.2] text-black">
+          <h2 className="font-meno-banner text-[24px] md:text-[38px] font-bold leading-[1.2] text-black">
             Find a preferred supplier
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <div className="mb-2">
-                <label htmlFor="state" className="font-[var(--font-gibson)] text-[13px] md:text-[15px] font-medium text-[#606060]">
+                <label htmlFor="state" className="font-gibson text-[13px] md:text-[15px] font-medium text-[#606060]">
                   Select the state of your insurer
                 </label>
               </div>
@@ -125,7 +125,7 @@ export function SearchForm({ onSubmit, isReturningUser = false, userEmail = '' }
                 value={formData.state}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 border border-[#ACACAD] rounded-[14.7px] font-[var(--font-gibson)] text-[14px] md:text-base focus:border-[#E87F6B] focus:ring-[#E87F6B]"
+                className="w-full px-4 py-3 border border-[#ACACAD] rounded-[14.7px] font-gibson text-[14px] md:text-base focus:border-[#E87F6B] focus:ring-[#E87F6B]"
               >
                 <option value="">State</option>
                 {states.map((state) => (
@@ -138,7 +138,7 @@ export function SearchForm({ onSubmit, isReturningUser = false, userEmail = '' }
 
             <div>
               <div className="mb-2">
-                <label htmlFor="insurance_provider" className="font-[var(--font-gibson)] text-[13px] md:text-[15px] font-medium text-[#606060]">
+                <label htmlFor="insurance_provider" className="font-gibson text-[13px] md:text-[15px] font-medium text-[#606060]">
                   Choose your insurance provider
                 </label>
               </div>
@@ -148,7 +148,7 @@ export function SearchForm({ onSubmit, isReturningUser = false, userEmail = '' }
                 value={formData.insurance_provider}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 border border-[#ACACAD] rounded-[14.7px] font-[var(--font-gibson)] text-[14px] md:text-base focus:border-[#E87F6B] focus:ring-[#E87F6B]"
+                className="w-full px-4 py-3 border border-[#ACACAD] rounded-[14.7px] font-gibson text-[14px] md:text-base focus:border-[#E87F6B] focus:ring-[#E87F6B]"
               >
                 <option value="">Insurance</option>
                 {insuranceProviders.map((provider) => (
@@ -163,7 +163,7 @@ export function SearchForm({ onSubmit, isReturningUser = false, userEmail = '' }
               <>
                 <div>
                   <div className="mb-2">
-                    <label htmlFor="email" className="font-[var(--font-gibson)] text-[13px] md:text-[15px] font-medium text-[#606060]">
+                    <label htmlFor="email" className="font-gibson text-[13px] md:text-[15px] font-medium text-[#606060]">
                       Enter your email
                     </label>
                   </div>
@@ -175,7 +175,7 @@ export function SearchForm({ onSubmit, isReturningUser = false, userEmail = '' }
                     onChange={handleChange}
                     required
                     placeholder="Email"
-                    className="w-full px-4 py-3 border border-[#ACACAD] rounded-[14.7px] font-[var(--font-gibson)] text-[14px] md:text-base bg-[#FCFCFC] focus:border-[#E87F6B] focus:ring-[#E87F6B]"
+                    className="w-full px-4 py-3 border border-[#ACACAD] rounded-[14.7px] font-gibson text-[14px] md:text-base bg-[#FCFCFC] focus:border-[#E87F6B] focus:ring-[#E87F6B]"
                   />
                 </div>
 
@@ -204,11 +204,11 @@ export function SearchForm({ onSubmit, isReturningUser = false, userEmail = '' }
                     </svg>
                   </div>
                   <div className="flex flex-col">
-                    <label htmlFor="terms" className="font-[var(--font-gibson)] text-[10px] md:text-[12px] font-medium text-[#606060]">
+                    <label htmlFor="terms" className="font-gibson text-[10px] md:text-[12px] font-medium text-[#606060]">
                       Agree to email terms and conditions
                     </label>
                     {showTermsError && (
-                      <span className="text-red-500 text-[10px] md:text-[11px] font-[var(--font-gibson)] mt-1">
+                      <span className="text-red-500 text-[10px] md:text-[11px] font-gibson mt-1">
                         Please accept the terms and conditions
                       </span>
                     )}
@@ -219,7 +219,7 @@ export function SearchForm({ onSubmit, isReturningUser = false, userEmail = '' }
 
             <button
               type="submit"
-              className="w-full bg-[#E87F6B] text-white font-[var(--font-gibson)] text-[14px] md:text-[16px] font-medium py-3 rounded-[6.3px] border border-[#E87F6B] hover:bg-[#e06a53] transition-colors uppercase mt-2"
+              className="w-full bg-[#E87F6B] text-white font-gibson text-[14px] md:text-[16px] font-medium py-3 rounded-[6.3px] border border-[#E87F6B] hover:bg-[#e06a53] transition-colors uppercase mt-2"
             >
               Submit
             </button>
@@ -236,7 +236,7 @@ export function SearchForm({ onSubmit, isReturningUser = false, userEmail = '' }
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#6B1111] to-transparent">
           <div className="absolute bottom-0 left-0 right-0 flex flex-col items-center gap-3 p-4 text-white">
-            <h2 className="font-[var(--font-meno-banner)] text-[24px] md:text-[35px] font-[700] leading-[1.26] text-center">
+            <h2 className="font-meno-banner text-[24px] md:text-[35px] font-[700] leading-[1.26] text-center">
               The ONLY pump that mimics your baby's tongue.
             </h2>
             <div className="flex items-center gap-2">
@@ -245,7 +245,7 @@ export function SearchForm({ onSubmit, isReturningUser = false, userEmail = '' }
                   <path d="M13.3334 4L6.00008 11.3333L2.66675 8" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </div>
-              <p className="font-[var(--font-gibson)] text-[12px] md:text-[20.5px] leading-none max-w-[200px] md:max-w-none text-center md:text-left">
+              <p className="font-gibson text-[12px] md:text-[20.5px] leading-none max-w-[200px] md:max-w-none text-center md:text-left">
                 Shown to increase average milk expression by 50%
               </p>
             </div>
@@ -257,20 +257,20 @@ export function SearchForm({ onSubmit, isReturningUser = false, userEmail = '' }
                   </svg>
                 ))}
               </div>
-              <p className="font-[var(--font-gibson)] text-[16px] md:text-[24.7px] leading-[1.33] tracking-[0.01em]">
+              <p className="font-gibson text-[16px] md:text-[24.7px] leading-[1.33] tracking-[0.01em]">
                 Trusted by 10k+ Moms
               </p>
             </div>
             <div className="flex gap-3 mt-3">
               <a 
                 href="https://annabella-pump.com/collections/all-products"
-                className="bg-[#E87F6B] text-white font-[var(--font-gibson)] text-[12px] md:text-[14.7px] font-medium uppercase px-4 md:px-[55px] py-2 md:py-[10.6px] rounded-[4.6px] border border-[#E87F6B] hover:bg-[#e06a53] transition-colors"
+                className="bg-[#E87F6B] text-white font-gibson text-[12px] md:text-[14.7px] font-medium uppercase px-4 md:px-[55px] py-2 md:py-[10.6px] rounded-[4.6px] border border-[#E87F6B] hover:bg-[#e06a53] transition-colors"
               >
                 Shop Collection
               </a>
               <a
                 href="https://annabella-pump.com/pages/contact"
-                className="bg-[#E87F6B] text-white font-[var(--font-gibson)] text-[12px] md:text-[14.7px] font-medium uppercase px-4 md:px-[55px] py-2 md:py-[10.6px] rounded-[4.6px] border border-[#E87F6B] hover:bg-[#e06a53] transition-colors"
+                className="bg-[#E87F6B] text-white font-gibson text-[12px] md:text-[14.7px] font-medium uppercase px-4 md:px-[55px] py-2 md:py-[10.6px] rounded-[4.6px] border border-[#E87F6B] hover:bg-[#e06a53] transition-colors"
               >
                 Contact Us
               </a>
