@@ -9,9 +9,8 @@ interface State {
   abbreviation: string;
 }
 
-interface InsuranceProvider {
-  id: number;
-  name: string;
+interface InsuranceProviders {
+  insurances: string[];
 }
 
 interface SearchFormProps {
@@ -26,7 +25,7 @@ interface SearchFormProps {
 
 export function SearchForm({ onSubmit, isReturningUser = false, userEmail = '' }: SearchFormProps) {
   const [states, setStates] = useState<State[]>([]);
-  const [insuranceProviders, setInsuranceProviders] = useState<InsuranceProvider[]>([]);
+  const [insuranceProviders, setInsuranceProviders] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     state: '',
     insurance_provider: '',
@@ -54,7 +53,7 @@ export function SearchForm({ onSubmit, isReturningUser = false, userEmail = '' }
         ]);
 
         setStates(statesData);
-        setInsuranceProviders(insuranceData);
+        setInsuranceProviders(insuranceData.insurances || []);
       } catch (error) {
         console.error('Error fetching form data:', error);
       } finally {
@@ -152,8 +151,8 @@ export function SearchForm({ onSubmit, isReturningUser = false, userEmail = '' }
               >
                 <option value="">Insurance</option>
                 {insuranceProviders.map((provider) => (
-                  <option key={provider.id} value={provider.name}>
-                    {provider.name}
+                  <option key={provider} value={provider}>
+                    {provider}
                   </option>
                 ))}
               </select>

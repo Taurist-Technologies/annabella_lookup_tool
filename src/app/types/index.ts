@@ -1,13 +1,11 @@
 export interface DMEProvider {
   id: number;
-  company_name: string;
+  dme_name: string;
   state: string;
   insurance_providers: string[];
-  phone_number: string;
+  phone: string;
   email: string;
-  weblink: string;
-  multiple_pump_models: boolean;
-  upgrade_pumps_available: boolean;
+  dedicated_link: string;
   resupply_available: boolean;
   accessories_available: boolean;
   lactation_services_available: boolean;
