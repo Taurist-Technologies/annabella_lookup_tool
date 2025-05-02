@@ -5,8 +5,10 @@ import { useRouter } from 'next/navigation';
 import { ResultsList } from '../../components/ResultsList';
 import { DMEProvider } from '../../types';
 import { config } from '../../config';
-import Lottie from 'lottie-react';
+import dynamic from 'next/dynamic';
 import loadingAnimation from '../../assets/loading-animation.json';
+
+const Lottie = dynamic(() => import('lottie-react'), { ssr: false });
 
 export default function AddProviderPage() {
   const router = useRouter();
