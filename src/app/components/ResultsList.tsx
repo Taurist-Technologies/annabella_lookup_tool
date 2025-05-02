@@ -24,18 +24,18 @@ export function ResultsList({ results }: ResultsListProps) {
           className="bg-white rounded-lg p-4 space-y-3"
         >
           <h3 className="font-meno-banner text-lg font-bold text-black">
-            {provider.company_name}
+            {provider.dme_name}
           </h3>
           <div className="space-y-1">
             <p className="font-[var(--font-ga-maamli)] text-sm">
-              <span className="font-bold">Phone Number:</span> {provider.phone_number}
+              <span className="font-bold">Phone Number:</span> {provider.phone}
             </p>
             <p className="font-[var(--font-ga-maamli)] text-sm">
               <span className="font-bold">Email:</span> {provider.email}
             </p>
           </div>
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
+            {/* <div className="flex items-center justify-between">
               <span className="font-gibson font-normal text-sm">Multiple Pump Models</span>
               <span className={`text-base ${provider.multiple_pump_models ? 'text-[#60DFD0]' : 'text-[#DE2A2A]'}`}>
                 {provider.multiple_pump_models ? '✓' : '✗'}
@@ -46,7 +46,7 @@ export function ResultsList({ results }: ResultsListProps) {
               <span className={`text-base ${provider.upgrade_pumps_available ? 'text-[#60DFD0]' : 'text-[#DE2A2A]'}`}>
                 {provider.upgrade_pumps_available ? '✓' : '✗'}
               </span>
-            </div>
+            </div> */}
             <div className="flex items-center justify-between">
               <span className="font-gibson font-normal text-sm">Resupply Available</span>
               <span className={`text-base ${provider.resupply_available ? 'text-[#60DFD0]' : 'text-[#DE2A2A]'}`}>
@@ -60,14 +60,14 @@ export function ResultsList({ results }: ResultsListProps) {
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="font-gibson font-normal text-sm">Location Services Available</span>
+              <span className="font-gibson font-normal text-sm">Lactation Services Available</span>
               <span className={`text-base ${provider.lactation_services_available ? 'text-[#60DFD0]' : 'text-[#DE2A2A]'}`}>
                 {provider.lactation_services_available ? '✓' : '✗'}
               </span>
             </div>
           </div>
           <a 
-            href={provider.weblink}
+            href={provider.dedicated_link}
             target="_blank"
             rel="noopener noreferrer" 
             className="block w-full bg-[#E87F6B] text-white font-gibson text-base py-3 rounded hover:bg-[#e96c54] transition-colors mt-4 text-center"
