@@ -54,3 +54,90 @@ def test_create_dme_invalid_state(client):
     response = client.post("/api/dme", json=invalid_dme)
     assert response.status_code == 400
     assert "Invalid state abbreviation" in response.json()["detail"]
+
+
+def test_update_provider_success(client, test_dme_provider):
+    # First create a provider
+    create_response = client.post("/api/dme", json=test_dme_provider)
+    assert create_response.status_code == 200
+    provider_id = create_response.json()["id"]
+
+    # Update the provider
+    update_data = {
+        "name": "Updated DME Name",
+        "phone": "999-999-9999",
+        "email": "updated@example.com",
+        "dedicated_link": "https://updated-link.com",
+    }
+
+    response = client.patch(f"/api/provider/{provider_id}", json=update_data)
+    assert response.status_code == 200
+    assert response.json()["message"] == f"Provider {provider_id} updated successfully"
+
+    # Verify the update
+    get_response = client.get(f"/api/provider/{provider_id}")
+    assert get_response.status_code == 200
+    updated_provider = get_response.json()
+    assert updated_provider["name"] == update_data["name"]
+    assert updated_provider["phone"] == update_data["phone"]
+    assert updated_provider["email"] == update_data["email"]
+    assert updated_provider["dedicated_link"] == update_data["dedicated_link"]
+
+
+def test_update_provider_partial(client, test_dme_provider):
+    # First create a provider
+    create_response = client.post("/api/dme", json=test_dme_provider)
+    assert create_response.status_code == 200
+    provider_id = create_response.json()["id"]
+
+    # Update only some fields
+    update_data = {"name": "Partially Updated DME Name", "phone": "888-888-8888"}
+
+    response = client.patch(f"/api/provider/{provider_id}", json=update_data)
+    assert response.status_code == 200
+    assert response.json()["message"] == f"Provider {provider_id} updated successfully"
+
+    # Verify the update
+    get_response = client.get(f"/api/provider/{provider_id}")
+    assert get_response.status_code == 200
+    updated_provider = get_response.json()
+    assert updated_provider["name"] == update_data["name"]
+    assert updated_provider["phone"] == update_data["phone"]
+    # Original values should remain unchanged
+    assert updated_provider["email"] == test_dme_provider["email"]
+    assert updated_provider["dedicated_link"] == test_dme_provider["dedicated_link"]
+
+
+def test_update_provider_not_found(client):
+    update_data = {"name": "Updated DME Name", "phone": "999-999-9999"}
+
+    response = client.patch("/api/provider/999999", json=update_data)
+    assert response.status_code == 404
+    assert "not found" in response.json()["detail"]
+
+
+def test_update_provider_no_data(client, test_dme_provider):
+    # First create a provider
+    create_response = client.post("/api/dme", json=test_dme_provider)
+    assert create_response.status_code == 200
+    provider_id = create_response.json()["id"]
+
+    # Try to update with empty data
+    update_data = {}
+
+    response = client.patch(f"/api/provider/{provider_id}", json=update_data)
+    assert response.status_code == 400
+    assert "No valid fields to update" in response.json()["detail"]
+
+
+def test_update_provider_invalid_email(client, test_dme_provider):
+    # First create a provider
+    create_response = client.post("/api/dme", json=test_dme_provider)
+    assert create_response.status_code == 200
+    provider_id = create_response.json()["id"]
+
+    # Try to update with invalid email
+    update_data = {"email": "not-an-email"}
+
+    response = client.patch(f"/api/provider/{provider_id}", json=update_data)
+    assert response.status_code == 422  # Validation error
