@@ -2,11 +2,11 @@ from dotenv import load_dotenv
 import os
 import pandas as pd
 import io
-from app.core.file_process import process_dme_data
+from app.core.file_process import process_dme_data, normalize_frame, upsert_provider
 
 load_dotenv()
 
-from fastapi import APIRouter, HTTPException, File, UploadFile
+from fastapi import APIRouter, HTTPException, File, UploadFile, Query
 from ..models.models import (
     SearchRequest,
     DMEProvider,
@@ -16,9 +16,10 @@ from ..models.models import (
     DMECompany,
     DMECoverage,
     DMEUploadResponse,
+    ProviderUpdate,
 )
 from ..core.supabase import supabase
-from typing import List
+from typing import List, Dict
 
 router = APIRouter()
 
@@ -29,13 +30,13 @@ async def get_states():
         response = supabase.table(os.getenv("STATES_TABLE")).select("*").execute()
         return response.data
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str("Nah Son.."))
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("/insurance-providers", response_model=InsuranceProviders)
 async def get_insurance_providers():
     try:
-        response = supabase.rpc("get_unique_insurances").execute()
+        response = supabase.rpc("get_insurance_names").execute()
         return response.data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -51,7 +52,6 @@ async def search_dme(request: SearchRequest):
             .eq("email", request.email)
             .execute()
         )
-        # print(email_response.data)
         # Only insert if email doesn't exist
         if not email_response.data:
             supabase.table(os.getenv("USER_EMAILS_TABLE")).insert(
@@ -62,72 +62,217 @@ async def search_dme(request: SearchRequest):
             "_state": request.state.upper(),
             "_insurance": request.insurance_provider.title(),
         }
-        response = supabase.rpc("search_dmes_2", payload).execute()
-        return response.data
+        response = supabase.rpc("search_providers", payload).execute()
+        return response.data if response.data is not None else []
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.post("/upload-dme", response_model=DMEUploadResponse)
-async def upload_dme(file: UploadFile = File(...)):
-    """
-    Upload and process a DME CSV file.
+def get_insurance_id(name: str) -> str:
+    res = (
+        supabase.table(os.getenv("INSURANCES_TABLE"))
+        .select("id")
+        .eq("name", name)
+        .execute()
+    )
+    if res.data:
+        return res.data[0]["id"]
 
-    The CSV should contain the following columns:
-    - DME Name
-    - Phone Number
-    - Email
-    - Insurance
-    - State
-    - Medicaid
-    - Resupply Available
-    - Accessories Available
-    - Location Services Available
-    - Dedicated Link
+    res = supabase.table(os.getenv("INSURANCES_TABLE")).insert({"name": name}).execute()
+    return res.data[0]["id"]
+
+
+@router.post("/upload_providers", response_model=DMEUploadResponse)
+async def upload_providers(file: UploadFile = File(...)):
+    if not file.filename.lower().endswith(".csv"):
+        raise HTTPException(status_code=400, detail="File must be a CSV")
+
+    df = pd.read_csv(io.StringIO((await file.read()).decode()))
+    df = normalize_frame(df)
+
+    coverage_records = []
+    provider_cache = {}
+
+    for _, row in df.iterrows():
+        provider_id = provider_cache.setdefault(
+            row["dme_name"], upsert_provider(row, supabase)
+        )
+        insurance_id = get_insurance_id(row["insurance"])
+
+        coverage_record = {
+            "provider_id": provider_id,
+            "insurance_id": insurance_id,
+            "state_code": row["state"].upper(),
+            "resupply_available": row.get("resupply_available", False),
+            "accessories_available": row.get("accessories_available", False),
+            "lactation_services_available": row.get(
+                "lactation_services_available", False
+            ),
+            "medicaid": row.get("medicaid", False),
+        }
+        coverage_records.append(coverage_record)
+
+    df_coverage = pd.DataFrame(coverage_records)
+    df_coverage = df_coverage.drop_duplicates(
+        subset=["provider_id", "insurance_id", "state_code"],
+        keep="last",
+    )
+    # Convert back to list of dictionaries
+    unique_coverage_records = df_coverage.to_dict("records")
+
+    try:
+
+        # Perform the upsert with deduplicated records
+        supabase.table(os.getenv("PROVIDER_COVERAGE_TABLE")).upsert(
+            unique_coverage_records, on_conflict="provider_id,insurance_id,state_code"
+        ).execute()
+
+        return DMEUploadResponse(
+            companies_loaded=len(provider_cache),
+            coverage_entries_loaded=len(coverage_records),
+            message=f"DME providers and coverage successfully loaded!",
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.patch("/provider/{provider_id}", response_model=Dict[str, str])
+async def update_provider(provider_id: str, update_data: ProviderUpdate):
+    """
+    Update a provider's information.
+
+    Args:
+        provider_id: The ID of the provider to update
+        update_data: The data to update for the provider
+
+    Returns:
+        A message indicating success
     """
     try:
-        # Read the uploaded file
-        contents = await file.read()
-        df = pd.read_csv(io.StringIO(contents.decode("utf-8")))
-        df.fillna(method="ffill", inplace=True)
+        # Remove None values from the update data
+        update_dict = update_data.dict(exclude_unset=True)
 
-        # Process the data
-        dmes_df, coverage_df = process_dme_data(df)
-
-        # Insert DME companies
-        dmes_inserted = (
-            supabase.table("dme_companies")
-            .insert(
-                dmes_df.rename(columns={"dme_name": "name"}).to_dict(orient="records")
+        if not update_dict:
+            raise HTTPException(
+                status_code=400, detail="No valid fields to update provided"
             )
+
+        # Check if provider exists
+        provider = (
+            supabase.table(os.getenv("PROVIDERS_TABLE"))
+            .select("id")
+            .eq("id", provider_id)
             .execute()
         )
 
-        # Create a mapping of DME names to their IDs
-        dme_id_mapping = {record["name"]: record["id"] for record in dmes_inserted.data}
+        if not provider.data:
+            raise HTTPException(
+                status_code=404, detail=f"Provider with ID {provider_id} not found"
+            )
 
-        # Add DME IDs to coverage data using the mapping
-        coverage_records = []
-        for _, row in coverage_df.iterrows():
-            coverage_record = row.to_dict()
-            dme_name = coverage_record.pop(
-                "dme_name"
-            )  # Remove dme_name and replace with dme_id
-            coverage_record["dme_id"] = dme_id_mapping[dme_name]
-            coverage_records.append(coverage_record)
-
-        # Insert coverage data
-        coverage_result = (
-            supabase.table("dme_coverage").insert(coverage_records).execute()
+        # Update the provider
+        result = (
+            supabase.table(os.getenv("PROVIDERS_TABLE"))
+            .update(update_dict)
+            .eq("id", provider_id)
+            .execute()
         )
 
-        return DMEUploadResponse(
-            companies_loaded=len(dmes_inserted.data),
-            coverage_entries_loaded=len(coverage_result.data),
-            message="DME data uploaded successfully",
-        )
+        if not result.data:
+            raise HTTPException(status_code=500, detail="Failed to update provider")
+
+        return {"message": f"Provider {provider_id} updated successfully"}
 
     except Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"Error processing DME data: {str(e)}"
+        if isinstance(e, HTTPException):
+            raise e
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/providers/search", response_model=List[DMEProvider])
+async def search_providers(
+    q: str = Query(..., min_length=2, description="Search query")
+):
+    """
+    Search for providers by name.
+
+    Args:
+        q: The search query string
+
+    Returns:
+        A list of providers matching the search query
+    """
+    try:
+        if not q or len(q.strip()) < 2:
+            raise HTTPException(
+                status_code=400, detail="Search query must be at least 2 characters"
+            )
+
+        # Perform case-insensitive search using Supabase's ilike operator
+        result = (
+            supabase.table(os.getenv("PROVIDERS_TABLE"))
+            .select("id, name, phone, email, dedicated_link")
+            .ilike("name", f"%{q}%")
+            .limit(10)
+            .execute()
         )
+
+        if not result.data:
+            return []
+
+        # Transform the data to match the DMEProvider structure
+        providers = []
+        for provider in result.data:
+            providers.append(
+                {
+                    "id": provider["id"],
+                    "dme_name": provider["name"],
+                    "state": "",  # We won't show state in the search results
+                    "insurance_providers": [],  # We won't show insurance providers in the search results
+                    "phone": provider["phone"],
+                    "email": provider["email"],
+                    "dedicated_link": provider["dedicated_link"],
+                    "resupply_available": False,  # Default value, not used in the UI
+                    "accessories_available": False,  # Default value, not used in the UI
+                    "lactation_services_available": False,  # Default value, not used in the UI
+                }
+            )
+
+        return providers
+
+    except Exception as e:
+        if isinstance(e, HTTPException):
+            raise e
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/provider/{provider_id}", response_model=Dict)
+async def get_provider(provider_id: str):
+    """
+    Get a provider's details by ID.
+
+    Args:
+        provider_id: The ID of the provider to fetch
+
+    Returns:
+        The provider details
+    """
+    try:
+        result = (
+            supabase.table(os.getenv("PROVIDERS_TABLE"))
+            .select("id, name, phone, email, dedicated_link")
+            .eq("id", provider_id)
+            .execute()
+        )
+
+        if not result.data:
+            raise HTTPException(
+                status_code=404, detail=f"Provider with ID {provider_id} not found"
+            )
+
+        return result.data[0]
+
+    except Exception as e:
+        if isinstance(e, HTTPException):
+            raise e
+        raise HTTPException(status_code=500, detail=str(e))

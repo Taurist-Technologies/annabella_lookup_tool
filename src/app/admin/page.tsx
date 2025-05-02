@@ -23,30 +23,30 @@ export default function AdminPage() {
           </button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+        <div className="max-w-2xl mx-auto grid grid-cols-1 gap-6">
           <div className="bg-white rounded-lg p-8 shadow-sm hover:shadow-md transition-shadow">
-            <h2 className="font-meno-banner text-2xl font-bold mb-4">Add Multiple Providers</h2>
+            <h2 className="font-meno-banner text-2xl font-bold mb-4">Add New Provider</h2>
             <p className="text-gray-600 mb-6 font-[var(--font-ga-maamli)]">
-              Upload multiple DME providers at once using a CSV file.
-            </p>
-            <button
-              onClick={() => router.push('/admin/bulk-upload')}
-              className="w-full bg-[#E87F6B] text-white font-gibson text-base py-3 rounded hover:bg-[#e06a53] transition-colors"
-            >
-              Add Providers in Bulk
-            </button>
-          </div>
-
-          <div className="bg-white rounded-lg p-8 shadow-sm hover:shadow-md transition-shadow">
-            <h2 className="font-meno-banner text-2xl font-bold mb-4">Add Single Provider</h2>
-            <p className="text-gray-600 mb-6 font-[var(--font-ga-maamli)]">
-              Add a single DME provider with detailed information.
+              Add a new DME provider by filling out the form or uploading a CSV file. You'll be able to preview the data before submitting.
             </p>
             <button
               onClick={() => router.push('/admin/add-provider')}
               className="w-full bg-[#E87F6B] text-white font-gibson text-base py-3 rounded hover:bg-[#e06a53] transition-colors"
             >
               Add New Provider
+            </button>
+          </div>
+
+          <div className="bg-white rounded-lg p-8 shadow-sm hover:shadow-md transition-shadow">
+            <h2 className="font-meno-banner text-2xl font-bold mb-4">Update Existing Provider</h2>
+            <p className="text-gray-600 mb-6 font-[var(--font-ga-maamli)]">
+              Search for an existing DME provider and update their details like name, phone, email, and dedicated link.
+            </p>
+            <button
+              onClick={() => router.push('/admin/update-provider')}
+              className="w-full bg-[#E87F6B] text-white font-gibson text-base py-3 rounded hover:bg-[#e06a53] transition-colors"
+            >
+              Update Existing Provider
             </button>
           </div>
         </div>

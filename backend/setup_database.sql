@@ -11,22 +11,25 @@ CREATE TABLE insurance_providers (
     name VARCHAR(100) NOT NULL UNIQUE
 );
 
--- Create dme_providers table
-Create TABLE dme_providers (
+-- Create dme_companies table
+CREATE TABLE if not exists dme_companies (
     id SERIAL PRIMARY KEY,
-    company_name VARCHAR(200) NOT NULL,
-    state CHAR(2) NOT NULL REFERENCES states(abbreviation),
-    insurance_providers TEXT[] NOT NULL,
-    phone_number TEXT NOT NULL,
-    email TEXT NOT NULL UNIQUE,
-    weblink TEXT NOT NULL,
-    multiple_pump_models BOOLEAN NOT NULL,
-    upgrade_pumps_available BOOLEAN NOT NULL,
-    resupply_available BOOLEAN NOT NULL,
-    accessories_available BOOLEAN NOT NULL,
-    lactation_services_available BOOLEAN NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+    name TEXT NOT NULL,
+    phone TEXT,
+    email TEXT,
+    dedicated_link TEXT
+);
+
+-- Create dme_coverage table
+CREATE TABLE if not exists dme_coverage (
+    id SERIAL PRIMARY KEY,
+    dme_id INTEGER REFERENCES dme_companies(id) ON DELETE CASCADE,
+    insurance TEXT NOT NULL,
+    state TEXT NOT NULL, -- Use 'All' as wildcard
+    medicaid BOOLEAN DEFAULT FALSE,
+    resupply_available BOOLEAN DEFAULT FALSE,
+    accessories_available BOOLEAN DEFAULT FALSE,
+    lactation_services_available BOOLEAN DEFAULT FALSE
 );
 
 -- Create user_emails table
