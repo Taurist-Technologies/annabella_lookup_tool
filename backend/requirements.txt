@@ -22,7 +22,9 @@ hyperframe==6.1.0
 idna==3.10
 iniconfig==2.1.0
 multidict==6.2.0
+numpy==2.2.5
 packaging==24.2
+pandas==2.2.3
 pluggy==1.5.0
 postgrest==1.0.1
 propcache==0.3.1
@@ -33,6 +35,8 @@ pytest==8.0.0
 pytest-mock==3.14.0
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
+python-multipart==0.0.20
+pytz==2025.2
 realtime==2.4.2
 requests==2.31.0
 six==1.17.0
@@ -43,6 +47,7 @@ StrEnum==0.4.15
 supabase==2.15.0
 supafunc==0.9.4
 typing_extensions==4.12.2
+tzdata==2025.2
 urllib3==2.3.0
 uvicorn==0.27.1
 websockets==12.0
