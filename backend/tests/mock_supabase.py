@@ -42,5 +42,16 @@ class MockSupabase:
             self._tables[name] = MockTable()
         return self._tables[name]
 
+    def rpc(self, name, params=None):
+        mock_result = MagicMock()
+        if name == "delete_provider_cascade":
+            # Simulate successful deletion
+            mock_result.error = None
+            mock_result.data = {"deleted": True}
+        else:
+            mock_result.error = None
+            mock_result.data = {}
+        return mock_result
+
 
 supabase = MockSupabase()
