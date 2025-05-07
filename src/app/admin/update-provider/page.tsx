@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { DMEProvider } from '../../types';
 import { config } from '../../config';
+import React from 'react';
 
 export default function UpdateProviderPage() {
   const router = useRouter();
@@ -19,6 +20,7 @@ export default function UpdateProviderPage() {
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -106,6 +108,32 @@ export default function UpdateProviderPage() {
     }
   };
 
+  const handleDeleteProvider = async () => {
+    if (!selectedProvider) return;
+    setIsLoading(true);
+    setError('');
+    setSuccess('');
+    try {
+      const response = await fetch(`${config.apiUrl}/api/provider/${selectedProvider.id}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.detail || 'Failed to delete provider');
+      }
+      setSuccess('Provider deleted successfully!');
+      setSelectedProvider(null);
+      setSearchResults([]);
+      setSearchTerm('');
+      setShowDeleteModal(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+      setShowDeleteModal(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <main className="min-h-screen bg-[#FDF8F3]">
       <div className="max-w-[1200px] mx-auto px-4 py-8">
@@ -188,8 +216,15 @@ export default function UpdateProviderPage() {
 
           {selectedProvider && (
             <div className="w-full lg:w-1/2">
-              <div className="bg-white rounded-lg p-8 shadow-sm">
+              <div className="bg-white rounded-lg p-8 shadow-sm relative">
                 <h2 className="font-meno-banner text-2xl font-bold mb-6">Update Provider Details</h2>
+                <button
+                  type="button"
+                  className="absolute right-8 top-8 border border-[#E87F6B] text-[#E87F6B] font-gibson font-semibold px-4 py-2 rounded hover:bg-[#ffe5e0] transition-colors"
+                  onClick={() => setShowDeleteModal(true)}
+                >
+                  Delete Provider
+                </button>
                 <form onSubmit={handleSubmit}>
                   <div className="space-y-4">
                     <div>
@@ -257,6 +292,30 @@ export default function UpdateProviderPage() {
                     </button>
                   </div>
                 </form>
+                {showDeleteModal && (
+                  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
+                    <div className="bg-white rounded-lg shadow-lg p-8 max-w-sm w-full">
+                      <h3 className="text-lg font-bold mb-4">Are you sure you want to delete this provider?</h3>
+                      <p className="mb-6 text-sm text-gray-700">This action cannot be undone.</p>
+                      <div className="flex justify-end gap-4">
+                        <button
+                          className="bg-[#E87F6B] text-white px-4 py-2 rounded hover:bg-[#e06a53] font-gibson font-medium"
+                          onClick={handleDeleteProvider}
+                          disabled={isLoading}
+                        >
+                          Yes, Delete
+                        </button>
+                        <button
+                          className="bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300 font-gibson font-medium"
+                          onClick={() => setShowDeleteModal(false)}
+                          disabled={isLoading}
+                        >
+                          No, go back
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}

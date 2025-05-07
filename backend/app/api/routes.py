@@ -276,3 +276,27 @@ async def get_provider(provider_id: str):
         if isinstance(e, HTTPException):
             raise e
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.delete("/provider/{provider_id}", response_model=Dict[str, str])
+async def delete_provider(provider_id: str):
+    """
+    Delete a provider and all related data using the delete_provider_cascade RPC.
+
+    Args:
+        provider_id: The ID of the provider to delete
+
+    Returns:
+        A message indicating success
+    """
+    try:
+        # Call the RPC to delete the provider and related data
+        result = supabase.rpc(
+            "delete_provider_cascade", {"p_provider_id": provider_id}
+        ).execute()
+
+        return {"message": f"Provider {provider_id} deleted successfully"}
+    except Exception as e:
+        if isinstance(e, HTTPException):
+            raise e
+        raise HTTPException(status_code=500, detail=str(e))
