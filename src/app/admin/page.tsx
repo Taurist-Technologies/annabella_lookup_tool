@@ -1,9 +1,43 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { config } from '../config';
 
 export default function AdminPage() {
   const router = useRouter();
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const handleDownloadEmails = async () => {
+    try {
+      setIsDownloading(true);
+      
+      const response = await fetch(`${config.apiUrl}/api/export/user-emails`, {
+        method: 'GET',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to download emails');
+      }
+      
+      // Create blob and download
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'user_emails.csv';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+      
+    } catch (error) {
+      console.error('Error downloading emails:', error);
+      alert('Failed to download emails. Please try again.');
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   return (
     <main className="min-h-screen bg-[#FDF8F3]">
@@ -24,6 +58,20 @@ export default function AdminPage() {
         </div>
 
         <div className="max-w-2xl mx-auto grid grid-cols-1 gap-6">
+          <div className="bg-white rounded-lg p-8 shadow-sm hover:shadow-md transition-shadow">
+            <h2 className="font-meno-banner text-2xl font-bold mb-4">Download User Emails</h2>
+            <p className="text-gray-600 mb-6 font-[var(--font-ga-maamli)]">
+              Export all user emails from the database as a CSV file for marketing or analysis purposes.
+            </p>
+            <button
+              onClick={handleDownloadEmails}
+              disabled={isDownloading}
+              className="w-full bg-[#E87F6B] text-white font-gibson text-base py-3 rounded hover:bg-[#e06a53] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isDownloading ? 'Downloading...' : 'Download User Emails CSV'}
+            </button>
+          </div>
+
           <div className="bg-white rounded-lg p-8 shadow-sm hover:shadow-md transition-shadow">
             <h2 className="font-meno-banner text-2xl font-bold mb-4">Add New Provider</h2>
             <p className="text-gray-600 mb-6 font-[var(--font-ga-maamli)]">

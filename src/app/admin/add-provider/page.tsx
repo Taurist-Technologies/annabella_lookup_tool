@@ -84,20 +84,43 @@ export default function AddProviderPage() {
       });
 
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.detail || 'Failed to add DME provider');
+        throw new Error('Failed to start processing');
       }
 
-      setSuccess('DME provider added successfully!');
-      setCsvFile(null);
-      setCsvPreview(null);
-      setIsCsvMode(false);
-      setIsPreviewMode(false);
+      const { job_id } = await response.json();
+      
+      // Poll for status
+      pollForStatus(job_id);
+      
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
-    } finally {
       setIsLoading(false);
     }
+  };
+
+  const pollForStatus = async (jobId: string) => {
+    const poll = async () => {
+      try {
+        const response = await fetch(`${config.apiUrl}/api/upload_status/${jobId}`);
+        const status = await response.json();
+        
+        if (status.status === 'completed') {
+          setSuccess(`Processing completed! ${status.companies_loaded} companies and ${status.coverage_entries_loaded} coverage entries loaded.`);
+          setIsLoading(false);
+        } else if (status.status === 'error') {
+          setError(status.message);
+          setIsLoading(false);
+        } else {
+          // Update progress and continue polling
+          setTimeout(poll, 1000);
+        }
+      } catch (err) {
+        setError('Failed to get processing status');
+        setIsLoading(false);
+      }
+    };
+    
+    poll();
   };
 
   const previewData: DMEProvider = csvPreview || {

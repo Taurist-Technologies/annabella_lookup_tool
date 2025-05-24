@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import os
 from app.api import routes
 import uvicorn
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 
 # Load environment variables
 load_dotenv()
@@ -26,6 +27,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Add timeout middleware for long-running requests
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
+
 
 @app.get("/")
 async def root():
@@ -37,5 +41,13 @@ async def health_check():
     return {"status": "healthy"}
 
 
-# if __name__ == "__main__":
-#     uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
+# If running with uvicorn, configure timeouts
+if __name__ == "__main__":
+    uvicorn.run(
+        "app.main:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=True,
+        timeout_keep_alive=300,  # 5 minutes
+        timeout_graceful_shutdown=30,
+    )
