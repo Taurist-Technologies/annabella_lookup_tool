@@ -1,5 +1,8 @@
 import pandas as pd
-from supabase import Client
+from typing import Dict, List
+import os
+import io
+from app.core.supabase import supabase as sb
 
 
 def convert_bool(val: str) -> bool:
@@ -118,35 +121,142 @@ def normalize_frame(raw: pd.DataFrame) -> pd.DataFrame:
 
 
 # --- 🟢 1. provider fields: booleans removed
-def upsert_provider(row, sb: Client) -> str:
+def batch_upsert_providers(
+    df: pd.DataFrame, sb, batch_size: int = 100
+) -> Dict[str, str]:
+    """Batch upsert providers to minimize database calls."""
+    unique_providers = df[
+        ["dme_name", "phone_number", "email", "dedicated_link"]
+    ].drop_duplicates()
 
-    provider_data = {
-        "name": str(row["dme_name"]) if pd.notna(row["dme_name"]) else "",
-        "phone": str(row["phone_number"]) if pd.notna(row["phone_number"]) else "",
-        "email": str(row["email"]) if pd.notna(row["email"]) else "",
-        "dedicated_link": (
-            str(row["dedicated_link"]) if pd.notna(row.get("dedicated_link")) else ""
-        ),
-    }
+    provider_name_to_id = {}
 
-    # Remove None values from the dictionary
-    provider_data = {k: v for k, v in provider_data.items() if v is not None}
+    for i in range(0, len(unique_providers), batch_size):
+        batch = unique_providers.iloc[i : i + batch_size]
 
-    # First check if the provider exists
+        # Check existing providers in batch
+        names = batch["dme_name"].tolist()
+        existing = sb.table("providers").select("id, name").in_("name", names).execute()
+
+        for provider in existing.data:
+            provider_name_to_id[provider["name"]] = provider["id"]
+
+        # Prepare new providers for insertion
+        new_providers = []
+        for _, row in batch.iterrows():
+            if row["dme_name"] not in provider_name_to_id:
+                new_providers.append(
+                    {
+                        "name": str(row["dme_name"]),
+                        "phone": str(row["phone_number"]),
+                        "email": str(row["email"]),
+                        "dedicated_link": str(row.get("dedicated_link", "")),
+                    }
+                )
+
+        # Batch insert new providers
+        if new_providers:
+            result = sb.table("providers").insert(new_providers).execute()
+            for provider in result.data:
+                provider_name_to_id[provider["name"]] = provider["id"]
+
+    return provider_name_to_id
+
+
+def batch_get_insurance_ids(insurance_names: List[str], sb) -> Dict[str, str]:
+    """Batch process insurance IDs to minimize database calls."""
+    unique_names = list(set(insurance_names))
+
+    # Get existing insurance IDs
     existing = (
-        sb.table("providers").select("id").eq("name", provider_data["name"]).execute()
+        sb.table(os.getenv("INSURANCES_TABLE"))
+        .select("id, name")
+        .in_("name", unique_names)
+        .execute()
     )
+    name_to_id = {ins["name"]: ins["id"] for ins in existing.data}
 
-    if existing.data:
-        # Provider exists, update it
-        res = (
-            sb.table("providers")
-            .update(provider_data)
-            .eq("name", provider_data["name"])
-            .execute()
+    # Create missing insurance entries
+    missing_names = [name for name in unique_names if name not in name_to_id]
+    if missing_names:
+        new_insurances = [{"name": name} for name in missing_names]
+        result = (
+            sb.table(os.getenv("INSURANCES_TABLE")).insert(new_insurances).execute()
         )
-        return res.data[0]["id"]
-    else:
-        # Provider doesn't exist, insert it
-        res = sb.table("providers").insert(provider_data).execute()
-        return res.data[0]["id"]
+        for ins in result.data:
+            name_to_id[ins["name"]] = ins["id"]
+
+    return name_to_id
+
+
+async def process_csv_async(job_id: str, file_content: bytes):
+    """Async CSV processing with progress tracking."""
+    try:
+        from app.api.routes import processing_status
+
+        # Parse CSV
+        df = pd.read_csv(io.StringIO(file_content.decode()))
+        df = normalize_frame(df)
+
+        total_rows = len(df)
+        processing_status[job_id]["total"] = total_rows
+        processing_status[job_id]["message"] = f"Processing {total_rows} rows..."
+
+        # Batch process providers
+        provider_name_to_id = batch_upsert_providers(df, sb)
+        processing_status[job_id]["progress"] = total_rows * 0.6
+        processing_status[job_id]["companies_loaded"] = len(provider_name_to_id)
+
+        # Batch process insurance IDs
+        insurance_names = df["insurance"].unique().tolist()
+        insurance_name_to_id = batch_get_insurance_ids(insurance_names, sb)
+        processing_status[job_id]["progress"] = total_rows * 0.8
+
+        # Prepare coverage records with vectorized operations
+        df["provider_id"] = df["dme_name"].map(provider_name_to_id)
+        df["insurance_id"] = df["insurance"].map(insurance_name_to_id)
+
+        coverage_records = (
+            df[
+                [
+                    "provider_id",
+                    "insurance_id",
+                    "state",
+                    "resupply_available",
+                    "accessories_available",
+                    "lactation_services_available",
+                    "medicaid",
+                ]
+            ]
+            .rename(columns={"state": "state_code"})
+            .to_dict("records")
+        )
+
+        # Batch upsert coverage records
+        batch_size = 500
+        for i in range(0, len(coverage_records), batch_size):
+            batch = coverage_records[i : i + batch_size]
+            sb.table(os.getenv("PROVIDER_COVERAGE_TABLE")).upsert(
+                batch, on_conflict="provider_id,insurance_id,state_code"
+            ).execute()
+
+            # Update progress
+            progress = min(
+                total_rows, (i + batch_size) / len(coverage_records) * total_rows
+            )
+            processing_status[job_id]["progress"] = progress
+
+        # Final status
+        processing_status[job_id].update(
+            {
+                "status": "completed",
+                "progress": total_rows,
+                "coverage_entries_loaded": len(coverage_records),
+                "message": "CSV processing completed successfully!",
+            }
+        )
+
+    except Exception as e:
+        processing_status[job_id].update(
+            {"status": "error", "message": f"Error processing CSV: {str(e)}"}
+        )

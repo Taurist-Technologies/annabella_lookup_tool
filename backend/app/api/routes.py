@@ -2,12 +2,15 @@ from dotenv import load_dotenv
 import os
 import pandas as pd
 import io
-from app.core.file_process import process_dme_data, normalize_frame, upsert_provider
 from fastapi.responses import StreamingResponse
+from app.core.file_process import (
+    process_csv_async,
+)
+
 
 load_dotenv()
 
-from fastapi import APIRouter, HTTPException, File, UploadFile, Query
+from fastapi import APIRouter, HTTPException, File, UploadFile, Query, BackgroundTasks
 from ..models.models import (
     SearchRequest,
     DMEProvider,
@@ -21,8 +24,13 @@ from ..models.models import (
 )
 from ..core.supabase import supabase
 from typing import List, Dict
+import asyncio
+import uuid
 
 router = APIRouter()
+
+# Add to routes.py
+processing_status: Dict[str, Dict] = {}
 
 
 @router.get("/states", response_model=List[State])
@@ -83,58 +91,40 @@ def get_insurance_id(name: str) -> str:
     return res.data[0]["id"]
 
 
-@router.post("/upload_providers", response_model=DMEUploadResponse)
-async def upload_providers(file: UploadFile = File(...)):
+@router.post("/upload_providers", response_model=Dict[str, str])
+async def upload_providers(
+    background_tasks: BackgroundTasks, file: UploadFile = File(...)
+):
     if not file.filename.lower().endswith(".csv"):
         raise HTTPException(status_code=400, detail="File must be a CSV")
 
-    df = pd.read_csv(io.StringIO((await file.read()).decode()))
-    df = normalize_frame(df)
+    # Generate unique job ID
+    job_id = str(uuid.uuid4())
 
-    coverage_records = []
-    provider_cache = {}
+    # Read file content
+    content = await file.read()
 
-    for _, row in df.iterrows():
-        provider_id = provider_cache.setdefault(
-            row["dme_name"], upsert_provider(row, supabase)
-        )
-        insurance_id = get_insurance_id(row["insurance"])
+    # Start background processing
+    background_tasks.add_task(process_csv_async, job_id, content)
 
-        coverage_record = {
-            "provider_id": provider_id,
-            "insurance_id": insurance_id,
-            "state_code": row["state"].upper(),
-            "resupply_available": row.get("resupply_available", False),
-            "accessories_available": row.get("accessories_available", False),
-            "lactation_services_available": row.get(
-                "lactation_services_available", False
-            ),
-            "medicaid": row.get("medicaid", False),
-        }
-        coverage_records.append(coverage_record)
+    # Initialize status
+    processing_status[job_id] = {
+        "status": "processing",
+        "progress": 0,
+        "total": 0,
+        "companies_loaded": 0,
+        "coverage_entries_loaded": 0,
+        "message": "Starting CSV processing...",
+    }
 
-    df_coverage = pd.DataFrame(coverage_records)
-    df_coverage = df_coverage.drop_duplicates(
-        subset=["provider_id", "insurance_id", "state_code"],
-        keep="last",
-    )
-    # Convert back to list of dictionaries
-    unique_coverage_records = df_coverage.to_dict("records")
+    return {"job_id": job_id, "message": "CSV processing started"}
 
-    try:
 
-        # Perform the upsert with deduplicated records
-        supabase.table(os.getenv("PROVIDER_COVERAGE_TABLE")).upsert(
-            unique_coverage_records, on_conflict="provider_id,insurance_id,state_code"
-        ).execute()
-
-        return DMEUploadResponse(
-            companies_loaded=len(provider_cache),
-            coverage_entries_loaded=len(coverage_records),
-            message=f"DME providers and coverage successfully loaded!",
-        )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+@router.get("/upload_status/{job_id}")
+async def get_upload_status(job_id: str):
+    if job_id not in processing_status:
+        raise HTTPException(status_code=404, detail="Job not found")
+    return processing_status[job_id]
 
 
 @router.patch("/provider/{provider_id}", response_model=Dict[str, str])
