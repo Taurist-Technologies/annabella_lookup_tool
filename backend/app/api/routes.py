@@ -2,9 +2,11 @@ from dotenv import load_dotenv
 import os
 import pandas as pd
 import io
+from fastapi.responses import StreamingResponse
 from app.core.file_process import (
     process_csv_async,
 )
+
 
 load_dotenv()
 
@@ -289,3 +291,41 @@ async def delete_provider(provider_id: str):
         if isinstance(e, HTTPException):
             raise e
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/export/user-emails")
+async def export_user_emails():
+    """
+    Export all user emails as a CSV file.
+
+    Returns:
+        A streaming response containing the CSV file
+    """
+    try:
+        # Fetch all user emails from Supabase
+        response = supabase.table(os.getenv("USER_EMAILS_TABLE")).select("*").execute()
+
+        if not response.data:
+            raise HTTPException(status_code=404, detail="No user emails found")
+
+        # Convert to DataFrame
+        df = pd.DataFrame(response.data)
+
+        # Create CSV string
+        csv_buffer = io.StringIO()
+        df.to_csv(csv_buffer, index=False)
+        csv_buffer.seek(0)
+
+        # Create streaming response
+        response = StreamingResponse(
+            io.BytesIO(csv_buffer.getvalue().encode("utf-8")),
+            media_type="text/csv",
+            headers={"Content-Disposition": "attachment; filename=user_emails.csv"},
+        )
+
+        return response
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Failed to export user emails: {str(e)}"
+        )
