@@ -21,49 +21,39 @@ export function ResultsList({ results }: ResultsListProps) {
       {results.map((provider) => (
         <div
           key={provider.id}
-          className="bg-white rounded-lg p-4 space-y-3"
+          className="bg-white rounded-lg p-4 flex flex-col h-full"
         >
-          <h3 className="font-meno-banner text-lg font-bold text-black">
-            {provider.dme_name}
-          </h3>
-          <div className="space-y-1">
-            <p className="font-[var(--font-ga-maamli)] text-sm">
-              <span className="font-bold">Phone Number:</span> {provider.phone}
-            </p>
-            <p className="font-[var(--font-ga-maamli)] text-sm">
-              <span className="font-bold">Email:</span> {provider.email}
-            </p>
-          </div>
-          <div className="space-y-2">
-            {/* <div className="flex items-center justify-between">
-              <span className="font-gibson font-normal text-sm">Multiple Pump Models</span>
-              <span className={`text-base ${provider.multiple_pump_models ? 'text-[#60DFD0]' : 'text-[#DE2A2A]'}`}>
-                {provider.multiple_pump_models ? '✓' : '✗'}
-              </span>
+          <div className="flex-grow space-y-3">
+            <h3 className="font-meno-banner text-lg font-bold text-black">
+              {provider.dme_name}
+            </h3>
+            <div className="space-y-1">
+              <p className="font-[var(--font-ga-maamli)] text-sm">
+                <span className="font-bold">Phone Number:</span> {provider.phone}
+              </p>
+              <p className="font-[var(--font-ga-maamli)] text-sm">
+                <span className="font-bold">Email:</span> {provider.email}
+              </p>
             </div>
-            <div className="flex items-center justify-between">
-              <span className="font-gibson font-normal text-sm">Upgrade Pumps Available</span>
-              <span className={`text-base ${provider.upgrade_pumps_available ? 'text-[#60DFD0]' : 'text-[#DE2A2A]'}`}>
-                {provider.upgrade_pumps_available ? '✓' : '✗'}
-              </span>
-            </div> */}
-            <div className="flex items-center justify-between">
-              <span className="font-gibson font-normal text-sm">Resupply Available</span>
-              <span className={`text-base ${provider.resupply_available ? 'text-[#60DFD0]' : 'text-[#DE2A2A]'}`}>
-                {provider.resupply_available ? '✓' : '✗'}
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="font-gibson font-normal text-sm">Accessories Available</span>
-              <span className={`text-base ${provider.accessories_available ? 'text-[#60DFD0]' : 'text-[#DE2A2A]'}`}>
-                {provider.accessories_available ? '✓' : '✗'}
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="font-gibson font-normal text-sm">Lactation Services Available</span>
-              <span className={`text-base ${provider.lactation_services_available ? 'text-[#60DFD0]' : 'text-[#DE2A2A]'}`}>
-                {provider.lactation_services_available ? '✓' : '✗'}
-              </span>
+            <div className="min-h-[120px] space-y-2 flex flex-col">
+              {provider.resupply_available && (
+                <div className="flex items-center justify-between">
+                  <span className="font-gibson font-normal text-sm">Resupply Available</span>
+                  <span className="text-base text-[#60DFD0]">✓</span>
+                </div>
+              )}
+              {provider.accessories_available && (
+                <div className="flex items-center justify-between">
+                  <span className="font-gibson font-normal text-sm">Accessories Available</span>
+                  <span className="text-base text-[#60DFD0]">✓</span>
+                </div>
+              )}
+              {provider.lactation_services_available && (
+                <div className="flex items-center justify-between">
+                  <span className="font-gibson font-normal text-sm">Lactation Services Available</span>
+                  <span className="text-base text-[#60DFD0]">✓</span>
+                </div>
+              )}
             </div>
           </div>
           <a 
