@@ -7,6 +7,8 @@ import { DMEProvider } from './types';
 import { config } from './config';
 
 console.log(config.apiUrl);
+console.log(config.wordpress.orderAPI);
+
 
 interface State {
   id: number;
@@ -79,7 +81,7 @@ export default function Home() {
         try {
           // Make the WordPress API call with the state abbreviation
           const wpResponse = await fetch(
-            `https://annabellastg.comitdevelopers.com/wp-json/hbe/v1/providers-by-state/${formData.state}`
+            `${config.wordpress.endpoints.providersByState(formData.state)}`
           );
           
           if (wpResponse.ok) {
@@ -115,10 +117,10 @@ export default function Home() {
               };
               
               try {
-                const orderResponse = await fetch('https://annabellastg.comitdevelopers.com/wp-json/hbe/v1/order', {
+                const orderResponse = await fetch(`${config.wordpress.endpoints.order}`, {
                   method: 'POST',
                   headers: {
-                    'X-HBE-API-Key': 'M2LsdHS6PtLiZ2OLxTPRdfT+cBXHj9I3lav0O+O3hw4=',
+                    'X-HBE-API-Key': `${config.wordpress.orderAPI}`,
                     'Content-Type': 'application/json'
                   },
                   body: JSON.stringify(orderData)
@@ -126,6 +128,7 @@ export default function Home() {
                 
                 if (orderResponse.ok) {
                   const orderResult = await orderResponse.json();
+                  console.log(orderData);
                   console.log('Order API response:', orderResult);
                   
                   // Check if resume_token exists and redirect
@@ -135,7 +138,7 @@ export default function Home() {
                     
                     // Small delay to show the final status before redirect
                     setTimeout(() => {
-                      window.location.href = `https://annabellastg.comitdevelopers.com/?gf_token=${orderResult.resume_token}`;
+                      window.location.href = `${config.wordpress.endpoints.redirect(orderResult.resume_token)}`;
                     }, 1000);
                   } else {
                     console.error('No resume_token in order API response');

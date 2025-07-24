@@ -67,6 +67,7 @@ This is the Annabella DME (Durable Medical Equipment) Search Tool - a full-stack
 - `NEXT_PUBLIC_FEATURE_FLAG_BETA` - Beta feature flag
 - `NEXT_PUBLIC_API_VERSION` - API version
 - `NEXT_PUBLIC_CACHE_MAX_AGE` - Cache configuration
+- `NEXT_PUBLIC_WORDPRESS_BASE_URL` - WordPress integration base URL (defaults to https://annabellastg.comitdevelopers.com)
 
 ### Backend Environment Variables
 - `SUPABASE_URL` - Supabase project URL
