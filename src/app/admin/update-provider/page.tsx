@@ -21,6 +21,9 @@ export default function UpdateProviderPage() {
   const [success, setSuccess] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [csvFile, setCsvFile] = useState<File | null>(null);
+  const [csvUploading, setCsvUploading] = useState(false);
+  const [csvUploadStatus, setCsvUploadStatus] = useState<string>('');
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -131,6 +134,54 @@ export default function UpdateProviderPage() {
       setShowDeleteModal(false);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleCsvFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type === 'text/csv') {
+      setCsvFile(file);
+      setCsvUploadStatus('');
+    } else {
+      setCsvFile(null);
+      setCsvUploadStatus('Please select a valid CSV file');
+    }
+  };
+
+  const handleCsvUpload = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedProvider || !csvFile) return;
+    
+    setCsvUploading(true);
+    setCsvUploadStatus('');
+    setError('');
+    setSuccess('');
+    
+    try {
+      const formData = new FormData();
+      formData.append('file', csvFile);
+      
+      const response = await fetch(`${config.apiUrl}/api/provider/${selectedProvider.id}/upload-insurance-states`, {
+        method: 'POST',
+        body: formData
+      });
+      
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.detail || 'Failed to upload CSV');
+      }
+      
+      const result = await response.json();
+      setCsvUploadStatus(`Success! Added ${result.mappings_added} insurance-state mappings.${result.skipped_rows.length > 0 ? ` ${result.skipped_rows.length} rows were skipped.` : ''}`);
+      setCsvFile(null);
+      // Reset file input
+      const fileInput = document.getElementById('csvFile') as HTMLInputElement;
+      if (fileInput) fileInput.value = '';
+      
+    } catch (err) {
+      setCsvUploadStatus(err instanceof Error ? err.message : 'An error occurred during upload');
+    } finally {
+      setCsvUploading(false);
     }
   };
 
@@ -288,10 +339,60 @@ export default function UpdateProviderPage() {
                       disabled={isLoading}
                       className="w-full bg-[#E87F6B] text-white font-gibson text-base py-3 rounded hover:bg-[#e06a53] transition-colors disabled:bg-[#E87F6B]/70"
                     >
-                      {isLoading ? 'Updating...' : 'Update Provider'}
+                      {isLoading ? 'Updating...' : 'Update Provider Details'}
                     </button>
                   </div>
                 </form>
+
+                {/* CSV Upload Form */}
+                <div className="mt-8 pt-8 border-t border-gray-200">
+                  <h3 className="font-meno-banner text-xl font-bold mb-4">Add Insurance-State Mappings</h3>
+                  <p className="text-sm text-[#606060] mb-4 font-gibson">
+                    Upload a CSV file with "Insurance" and "State" columns. States can be 2-letter codes or "ALL".
+                  </p>
+                  
+                  {csvUploading ? (
+                    <div className="flex flex-col items-center justify-center py-8">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#E87F6B] mb-4"></div>
+                      <p className="text-[#606060] font-gibson text-sm">Processing your CSV file...</p>
+                      <p className="text-[#606060] font-gibson text-xs mt-2">This may take a moment</p>
+                    </div>
+                  ) : (
+                    <form onSubmit={handleCsvUpload}>
+                      <div className="mb-4">
+                        <label htmlFor="csvFile" className="block text-sm font-gibson font-medium text-[#606060] mb-2">
+                          CSV File
+                        </label>
+                        <input
+                          id="csvFile"
+                          type="file"
+                          accept=".csv"
+                          onChange={handleCsvFileChange}
+                          className="w-full px-4 py-3 border border-[#ACACAD] rounded-[14.7px] font-gibson text-[14px] bg-[#FCFCFC] focus:border-[#E87F6B] focus:ring-[#E87F6B]"
+                        />
+                      </div>
+                      
+                      {csvUploadStatus && (
+                        <div className={`mb-4 px-4 py-3 rounded-lg text-sm ${
+                          csvUploadStatus.includes('Success') 
+                            ? 'bg-[#60DFD0]/10 border border-[#60DFD0] text-[#2C8A81]'
+                            : 'bg-red-100 border border-red-400 text-red-700'
+                        }`}>
+                          {csvUploadStatus}
+                        </div>
+                      )}
+                      
+                      <button
+                        type="submit"
+                        disabled={!csvFile || csvUploading}
+                        className="w-full bg-[#E87F6B] text-white font-gibson text-base py-3 rounded hover:bg-[#e06a53] transition-colors disabled:bg-[#E87F6B]/70"
+                      >
+                        {csvUploading ? 'Uploading...' : 'Update Insurance-State Mappings'}
+                      </button>
+                    </form>
+                  )}
+                </div>
+
                 {showDeleteModal && (
                   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30">
                     <div className="bg-white rounded-lg shadow-lg p-8 max-w-sm w-full">
