@@ -95,3 +95,9 @@ class ProviderUpdate(BaseModel):
                 "dedicated_link": "https://updated-link.com",
             }
         }
+
+
+class InsuranceStateUploadResponse(BaseModel):
+    mappings_added: int
+    skipped_rows: List[str] = []
+    message: str
