@@ -260,3 +260,95 @@ async def process_csv_async(job_id: str, file_content: bytes):
         processing_status[job_id].update(
             {"status": "error", "message": f"Error processing CSV: {str(e)}"}
         )
+
+
+def process_provider_insurance_states_csv(
+    provider_id: str, file_content: bytes
+) -> dict:
+    """Process CSV with Insurances and States columns for a specific provider."""
+    try:
+        # Parse CSV
+        df = pd.read_csv(io.StringIO(file_content.decode()))
+
+        # Clean headers
+        df.columns = df.columns.str.strip().str.lower()
+
+        # Validate required columns
+        required_columns = ["insurance", "state"]
+        if not all(col in df.columns for col in required_columns):
+            raise ValueError(
+                f"CSV must contain exactly these columns: {required_columns}"
+            )
+
+        # Get valid state codes from database
+        states_response = (
+            sb.table(os.getenv("STATES_TABLE")).select("abbreviation").execute()
+        )
+        valid_states = set([state["abbreviation"] for state in states_response.data])
+        valid_states.add("ALL")  # Add ALL as valid state
+
+        mappings_added = 0
+        skipped_rows = []
+
+        # Process each row
+        for index, row in df.iterrows():
+            insurance_name = str(row["insurance"]).strip().title()
+            state_code = str(row["state"]).strip().upper()
+
+            # Validate state code
+            if state_code not in valid_states:
+                skipped_rows.append(
+                    f"Row {index + 1}: Invalid state code '{state_code}'"
+                )
+                print("skipped row", skipped_rows)
+
+                continue
+
+            try:
+                # Get or create insurance ID
+                insurance_id = get_insurance_id(insurance_name)
+
+                # Prepare coverage record
+                coverage_record = {
+                    "provider_id": provider_id,
+                    "insurance_id": insurance_id,
+                    "state_code": state_code,
+                    "resupply_available": False,
+                    "accessories_available": False,
+                    "lactation_services_available": False,
+                    "medicaid": False,
+                }
+
+                # Upsert to provider_coverage table
+                sb.table(os.getenv("PROVIDER_COVERAGE_TABLE")).upsert(
+                    coverage_record, on_conflict="provider_id,insurance_id,state_code"
+                ).execute()
+
+                mappings_added += 1
+                print("mappings_added", mappings_added)
+
+            except Exception as e:
+                skipped_rows.append(f"Row {index + 1}: Database error - {str(e)}")
+                print("skipped row", skipped_rows)
+                return
+
+        return {
+            "mappings_added": mappings_added,
+            "skipped_rows": skipped_rows,
+            "message": f"Successfully added {mappings_added} insurance-state mappings",
+        }
+
+    except Exception as e:
+        raise ValueError(f"Error processing CSV: {str(e)}")
+
+
+def get_insurance_id(name: str) -> str:
+    """Get or create insurance ID by name."""
+    res = (
+        sb.table(os.getenv("INSURANCES_TABLE")).select("id").eq("name", name).execute()
+    )
+    if res.data:
+        return res.data[0]["id"]
+
+    res = sb.table(os.getenv("INSURANCES_TABLE")).insert({"name": name}).execute()
+    return res.data[0]["id"]

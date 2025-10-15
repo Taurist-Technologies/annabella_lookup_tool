@@ -5,6 +5,7 @@ import io
 from fastapi.responses import StreamingResponse
 from app.core.file_process import (
     process_csv_async,
+    process_provider_insurance_states_csv,
 )
 
 
@@ -21,6 +22,7 @@ from ..models.models import (
     DMECoverage,
     DMEUploadResponse,
     ProviderUpdate,
+    InsuranceStateUploadResponse,
 )
 from ..core.supabase import supabase
 from typing import List, Dict
@@ -71,7 +73,7 @@ async def search_dme(request: SearchRequest):
             "_state": request.state.upper(),
             "_insurance": request.insurance_provider.title(),
         }
-        response = supabase.rpc("search_providers", payload).execute()
+        response = supabase.rpc(os.getenv("SEARCH_PROVIDERS"), payload).execute()
         return response.data if response.data is not None else []
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -141,7 +143,7 @@ async def update_provider(provider_id: str, update_data: ProviderUpdate):
     """
     try:
         # Remove None values from the update data
-        update_dict = update_data.dict(exclude_unset=True)
+        update_dict = update_data.model_dump(exclude_unset=True)
 
         if not update_dict:
             raise HTTPException(
@@ -283,7 +285,7 @@ async def delete_provider(provider_id: str):
     try:
         # Call the RPC to delete the provider and related data
         result = supabase.rpc(
-            "delete_provider_cascade", {"p_provider_id": provider_id}
+            os.getenv("DELETE_PROVIDER_CASCADE"), {"p_provider_id": provider_id}
         ).execute()
 
         return {"message": f"Provider {provider_id} deleted successfully"}
@@ -329,3 +331,57 @@ async def export_user_emails():
         raise HTTPException(
             status_code=500, detail=f"Failed to export user emails: {str(e)}"
         )
+
+
+@router.post(
+    "/provider/{provider_id}/upload-insurance-states",
+    response_model=InsuranceStateUploadResponse,
+)
+async def upload_provider_insurance_states(
+    provider_id: str, file: UploadFile = File(...)
+):
+    """
+    Upload a CSV file with insurance-state mappings for a specific provider.
+
+    CSV must have exactly 2 columns: "Insurances" and "States"
+    States can be 2-letter codes or "ALL" for all states.
+
+    Args:
+        provider_id: The ID of the provider to add mappings for
+        file: CSV file with Insurances and States columns
+
+    Returns:
+        Response with count of mappings added and any skipped rows
+    """
+    try:
+        # Validate file type
+        if not file.filename.lower().endswith(".csv"):
+            raise HTTPException(status_code=400, detail="File must be a CSV")
+
+        # Check if provider exists
+        provider = (
+            supabase.table(os.getenv("PROVIDERS_TABLE"))
+            .select("id")
+            .eq("id", provider_id)
+            .execute()
+        )
+
+        if not provider.data:
+            raise HTTPException(
+                status_code=404, detail=f"Provider with ID {provider_id} not found"
+            )
+
+        # Read file content
+        content = await file.read()
+
+        # Process the CSV
+        result = process_provider_insurance_states_csv(provider_id, content)
+
+        return InsuranceStateUploadResponse(**result)
+
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        if isinstance(e, HTTPException):
+            raise e
+        raise HTTPException(status_code=500, detail=str(e))
