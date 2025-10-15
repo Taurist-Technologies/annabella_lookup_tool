@@ -233,31 +233,6 @@ export default function Home() {
         </div>
       )}
       
-      {!showResults && (
-        <>
-          <a
-            href="https://www.annabella-pump.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="fixed top-8 left-20 text-black font-gibson text-[12px] px-4 py-2 rounded hover:underline transition-colors underline hidden md:block"
-          >
-            {'< Back to homepage'}
-          </a>
-          {/* Home icon for mobile */}
-          <a
-            href="https://www.annabella-pump.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="fixed top-4 right-4 z-50 md:hidden p-2 hover:bg-[#ffe5e0] transition-colors"
-            aria-label="Go to homepage"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="#E87F6B" viewBox="0 0 24 24" className="w-5 h-5">
-              <path d="M10.707 2.293a1 1 0 0 1 1.414 0l9 9A1 1 0 0 1 20 13h-1v7a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1v-4h-2v4a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-7H3a1 1 0 0 1-.707-1.707l9-9z"/>
-            </svg>
-          </a>
-        </>
-      )}
-      {/* ... existing code ... */}
       { !showResults ? (
         <SearchForm onSubmit={handleSearch} isReturningUser={isReturningUser} userEmail={userEmail} />
       ) : (
@@ -269,7 +244,7 @@ export default function Home() {
             </div>
           )}
           <div className="max-w-[1200px] mx-auto px-4 py-8">
-            <div className="flex justify-between items-center mb-8">
+            <div className="flex justify-between items-center mb-8 mt-6">
               <div className="flex items-end gap-2">
                 <img src="/images/logo.png" alt="Annabella Logo" className="h-6 md:h-8 mb-1"/>
                 <h1 className={`font-meno-banner text-base font-bold ${!loading && !error && results.length > 0 ? 'hidden md:block' : 'block'}`}>Insurance Lookup Tool</h1>

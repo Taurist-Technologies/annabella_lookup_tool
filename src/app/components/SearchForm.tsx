@@ -222,6 +222,18 @@ export function SearchForm({ onSubmit, isReturningUser = false, userEmail = '' }
             >
               Submit
             </button>
+
+            <a
+              href="https://www.annabella-pump.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full bg-white text-[#E87F6B] font-gibson text-[14px] md:text-[16px] font-medium py-3 rounded-[6.3px] border border-[#E87F6B] hover:bg-[#ffe5e0] transition-colors flex items-center justify-center gap-2"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+              </svg>
+              Return to homepage
+            </a>
           </form>
         </div>
       </div>
