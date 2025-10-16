@@ -7,7 +7,7 @@ from app.core.file_process import (
     process_csv_async,
     process_provider_insurance_states_csv,
 )
-
+from datetime import datetime, timedelta
 
 load_dotenv()
 
@@ -23,6 +23,10 @@ from ..models.models import (
     DMEUploadResponse,
     ProviderUpdate,
     InsuranceStateUploadResponse,
+    ClickTrackingRequest,
+    ClickTrackingResponse,
+    ClickAnalytics,
+    ClickAnalyticsRequest,
 )
 from ..core.supabase import supabase
 from typing import List, Dict
@@ -385,3 +389,167 @@ async def upload_provider_insurance_states(
         if isinstance(e, HTTPException):
             raise e
         raise HTTPException(status_code=500, detail=str(e))
+
+
+## TRACKING ROUTES
+@router.post("/track-click", response_model=ClickTrackingResponse)
+async def track_provider_click(request: ClickTrackingRequest):
+    """
+    Track when a user clicks on a provider link.
+
+    This endpoint records click events for analytics purposes.
+    It tracks both manual clicks and auto-redirects.
+    """
+    try:
+        # Prepare the click data
+        click_data = {
+            "provider_id": request.provider_id,
+            "user_email": request.user_email,
+            "search_state": request.search_state.upper(),
+            "search_insurance": request.search_insurance,
+            "click_type": request.click_type,
+            "session_id": request.session_id,
+            "user_agent": request.user_agent,
+            "referrer": request.referrer,
+        }
+        print("Click data route:", click_data)
+
+        # Remove None values
+        click_data = {k: v for k, v in click_data.items() if v is not None}
+
+        # Insert into database
+        result = (
+            supabase.table(os.getenv("PROVIDER_CLICKS_TABLE", "provider_clicks"))
+            .insert(click_data)
+            .execute()
+        )
+
+        if result.data:
+            return ClickTrackingResponse(
+                success=True,
+                message="Click tracked successfully",
+                click_id=result.data[0]["id"],
+            )
+        else:
+            raise HTTPException(status_code=500, detail="Failed to track click")
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error tracking click: {str(e)}")
+
+
+@router.post("/analytics/clicks", response_model=List[ClickAnalytics])
+async def get_click_analytics(request: ClickAnalyticsRequest):
+    """
+    Get click analytics for providers.
+
+    Returns detailed analytics including click counts, user engagement,
+    and popular states/insurances for each provider.
+    """
+    try:
+        # Prepare parameters for the RPC call
+        params = {}
+
+        if request.start_date:
+            params["start_date"] = request.start_date
+        if request.end_date:
+            params["end_date"] = request.end_date
+        if request.provider_id:
+            params["provider_id_filter"] = request.provider_id
+        if request.state:
+            params["state_filter"] = request.state.upper()
+
+        # Call the analytics RPC function
+        result = supabase.rpc("get_click_analytics", params).execute()
+
+        if result.data:
+            return [
+                ClickAnalytics(
+                    provider_id=row["provider_id"],
+                    provider_name=row["provider_name"],
+                    total_clicks=row["total_clicks"],
+                    manual_clicks=row["manual_clicks"],
+                    auto_redirects=row["auto_redirects"],
+                    unique_users=row["unique_users"],
+                    avg_clicks_per_user=float(row["avg_clicks_per_user"] or 0),
+                    top_states=row["top_states"] or [],
+                    top_insurances=row["top_insurances"] or [],
+                )
+                for row in result.data
+            ]
+        else:
+            return []
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Error fetching analytics: {str(e)}"
+        )
+
+
+@router.get("/analytics/clicks/summary")
+async def get_click_summary():
+    """
+    Get a summary of click analytics for the dashboard.
+
+    Returns high-level metrics for quick overview.
+    """
+    try:
+        # Get total clicks in the last 30 days
+        thirty_days_ago = (datetime.now() - timedelta(days=30)).date()
+
+        # Total clicks
+        total_result = (
+            supabase.table(os.getenv("PROVIDER_CLICKS_TABLE", "provider_clicks"))
+            .select("id", count="exact")
+            .execute()
+        )
+
+        # Clicks in last 30 days
+        recent_result = (
+            supabase.table(os.getenv("PROVIDER_CLICKS_TABLE", "provider_clicks"))
+            .select("id", count="exact")
+            .gte("clicked_at", thirty_days_ago.isoformat())
+            .execute()
+        )
+
+        # Manual vs auto clicks in last 30 days
+        manual_result = (
+            supabase.table(os.getenv("PROVIDER_CLICKS_TABLE", "provider_clicks"))
+            .select("id", count="exact")
+            .eq("click_type", "manual")
+            .gte("clicked_at", thirty_days_ago.isoformat())
+            .execute()
+        )
+
+        auto_result = (
+            supabase.table(os.getenv("PROVIDER_CLICKS_TABLE", "provider_clicks"))
+            .select("id", count="exact")
+            .eq("click_type", "auto_redirect")
+            .gte("clicked_at", thirty_days_ago.isoformat())
+            .execute()
+        )
+
+        # Unique users in last 30 days
+        unique_users_result = (
+            supabase.table(os.getenv("PROVIDER_CLICKS_TABLE", "provider_clicks"))
+            .select("user_email")
+            .gte("clicked_at", thirty_days_ago.isoformat())
+            .execute()
+        )
+
+        unique_users = (
+            len(set([row["user_email"] for row in unique_users_result.data]))
+            if unique_users_result.data
+            else 0
+        )
+
+        return {
+            "total_clicks_all_time": total_result.count or 0,
+            "clicks_last_30_days": recent_result.count or 0,
+            "manual_clicks_last_30_days": manual_result.count or 0,
+            "auto_redirects_last_30_days": auto_result.count or 0,
+            "unique_users_last_30_days": unique_users,
+            "period": "last_30_days",
+        }
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error fetching summary: {str(e)}")

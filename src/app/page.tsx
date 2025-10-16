@@ -5,9 +5,8 @@ import { SearchForm } from './components/SearchForm';
 import { ResultsList } from './components/ResultsList';
 import { DMEProvider } from './types';
 import { config } from './config';
+import { trackProviderClick, findProviderIdByName, getSessionId } from './utils/clickTracking';
 
-console.log(config.apiUrl);
-console.log(config.wordpress.orderAPI);
 
 
 interface State {
@@ -26,6 +25,7 @@ export default function Home() {
   const [states, setStates] = useState<State[]>([]);
   const [isBreastpumpsFlow, setIsBreastpumpsFlow] = useState(false);
   const [loadingStatus, setLoadingStatus] = useState<string>('Processing your request...');
+  const [searchData, setSearchData] = useState<any>(null); // Store search context
 
   useEffect(() => {
     // Fetch states data
@@ -52,6 +52,15 @@ export default function Home() {
     setError(null);
     setIsBreastpumpsFlow(false);
     setLoadingStatus('Processing your request...');
+
+    // Store search context for click tracking
+    const sessionId = getSessionId();
+    const searchContext = {
+      ...formData,
+      session_id: sessionId,
+    };
+    setSearchData(searchContext);
+
     try {
       const response = await fetch(`${config.apiUrl}/api/search-dme`, {
         method: 'POST',
@@ -77,6 +86,20 @@ export default function Home() {
         setIsBreastpumpsFlow(true);
         setLoadingStatus('Connecting to insurance provider...');
         console.log('Breastpumps.com found in results, making WordPress API call...');
+
+        // Track the auto-redirect click BEFORE the redirect happens
+        const breastpumpsProviderId = findProviderIdByName(data, 'breastpumps.com');
+        if (breastpumpsProviderId) {
+          trackProviderClick({
+            provider_id: breastpumpsProviderId,
+            provider_name: 'breastpumps.com',
+            user_email: formData.email,
+            search_state: formData.state,
+            search_insurance: formData.insurance_provider,
+            click_type: 'auto_redirect',
+            session_id: sessionId,
+          });
+        }
         
         try {
           // Make the WordPress API call with the state abbreviation
@@ -282,7 +305,7 @@ export default function Home() {
                 </button>
               </div>
             ) : (
-              <ResultsList results={results} />
+              <ResultsList results={results} searchData={searchData} />
             )}
           </div>
         </main>

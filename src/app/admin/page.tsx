@@ -57,42 +57,55 @@ export default function AdminPage() {
           </button>
         </div>
 
-        <div className="max-w-2xl mx-auto grid grid-cols-1 gap-6">
-          <div className="bg-white rounded-lg p-8 shadow-sm hover:shadow-md transition-shadow">
-            <h2 className="font-meno-banner text-2xl font-bold mb-4">Download User Emails</h2>
-            <p className="text-gray-600 mb-6 font-[var(--font-ga-maamli)]">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+            <h2 className="font-meno-banner text-xl font-bold mb-3">Analytics Dashboard</h2>
+            <p className="text-gray-600 mb-6 font-[var(--font-ga-maamli)] text-sm">
+              View click analytics, user engagement metrics, and provider performance data.
+            </p>
+            <button
+              onClick={() => router.push('/admin/analytics')}
+              className="w-full bg-[#E87F6B] text-white font-gibson text-sm py-2.5 rounded hover:bg-[#e06a53] transition-colors"
+            >
+              View Analytics Dashboard
+            </button>
+          </div>
+
+          <div className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+            <h2 className="font-meno-banner text-xl font-bold mb-3">Download User Emails</h2>
+            <p className="text-gray-600 mb-6 font-[var(--font-ga-maamli)] text-sm">
               Export all user emails from the database as a CSV file for marketing or analysis purposes.
             </p>
             <button
               onClick={handleDownloadEmails}
               disabled={isDownloading}
-              className="w-full bg-[#E87F6B] text-white font-gibson text-base py-3 rounded hover:bg-[#e06a53] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full bg-[#E87F6B] text-white font-gibson text-sm py-2.5 rounded hover:bg-[#e06a53] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isDownloading ? 'Downloading...' : 'Download User Emails CSV'}
             </button>
           </div>
 
-          <div className="bg-white rounded-lg p-8 shadow-sm hover:shadow-md transition-shadow">
-            <h2 className="font-meno-banner text-2xl font-bold mb-4">Add New Provider</h2>
-            <p className="text-gray-600 mb-6 font-[var(--font-ga-maamli)]">
+          <div className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+            <h2 className="font-meno-banner text-xl font-bold mb-3">Add New Provider</h2>
+            <p className="text-gray-600 mb-6 font-[var(--font-ga-maamli)] text-sm">
               Add a new DME provider by filling out the form or uploading a CSV file. You'll be able to preview the data before submitting.
             </p>
             <button
               onClick={() => router.push('/admin/add-provider')}
-              className="w-full bg-[#E87F6B] text-white font-gibson text-base py-3 rounded hover:bg-[#e06a53] transition-colors"
+              className="w-full bg-[#E87F6B] text-white font-gibson text-sm py-2.5 rounded hover:bg-[#e06a53] transition-colors"
             >
               Add New Provider
             </button>
           </div>
 
-          <div className="bg-white rounded-lg p-8 shadow-sm hover:shadow-md transition-shadow">
-            <h2 className="font-meno-banner text-2xl font-bold mb-4">Update Existing Provider</h2>
-            <p className="text-gray-600 mb-6 font-[var(--font-ga-maamli)]">
+          <div className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow">
+            <h2 className="font-meno-banner text-xl font-bold mb-3">Update Existing Provider</h2>
+            <p className="text-gray-600 mb-6 font-[var(--font-ga-maamli)] text-sm">
               Search for an existing DME provider and update their details like name, phone, email, and dedicated link.
             </p>
             <button
               onClick={() => router.push('/admin/update-provider')}
-              className="w-full bg-[#E87F6B] text-white font-gibson text-base py-3 rounded hover:bg-[#e06a53] transition-colors"
+              className="w-full bg-[#E87F6B] text-white font-gibson text-sm py-2.5 rounded hover:bg-[#e06a53] transition-colors"
             >
               Update Existing Provider
             </button>
