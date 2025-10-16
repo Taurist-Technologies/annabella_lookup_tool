@@ -26,6 +26,7 @@ export default function Home() {
   const [isBreastpumpsFlow, setIsBreastpumpsFlow] = useState(false);
   const [loadingStatus, setLoadingStatus] = useState<string>('Processing your request...');
   const [searchData, setSearchData] = useState<any>(null); // Store search context
+  const [trackedProviders, setTrackedProviders] = useState<Set<number>>(new Set()); // Track which providers have been clicked/tracked
 
   useEffect(() => {
     // Fetch states data
@@ -52,6 +53,9 @@ export default function Home() {
     setError(null);
     setIsBreastpumpsFlow(false);
     setLoadingStatus('Processing your request...');
+
+    // Reset tracked providers for new search
+    setTrackedProviders(new Set());
 
     // Store search context for click tracking
     const sessionId = getSessionId();
@@ -99,6 +103,8 @@ export default function Home() {
             click_type: 'auto_redirect',
             session_id: sessionId,
           });
+          // Mark this provider as already tracked
+          setTrackedProviders(prev => new Set(prev).add(breastpumpsProviderId));
         }
         
         try {
@@ -305,7 +311,7 @@ export default function Home() {
                 </button>
               </div>
             ) : (
-              <ResultsList results={results} searchData={searchData} />
+              <ResultsList results={results} searchData={searchData} trackedProviders={trackedProviders} onProviderTracked={(providerId) => setTrackedProviders(prev => new Set(prev).add(providerId))} />
             )}
           </div>
         </main>
