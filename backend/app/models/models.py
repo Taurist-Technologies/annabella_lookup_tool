@@ -101,3 +101,46 @@ class InsuranceStateUploadResponse(BaseModel):
     mappings_added: int
     skipped_rows: List[str] = []
     message: str
+
+
+## TRACKING MODELS
+
+
+class ClickTrackingRequest(BaseModel):
+    provider_id: int = Field(..., description="ID of the clicked provider")
+    user_email: EmailStr = Field(..., description="Email of the user who clicked")
+    search_state: str = Field(
+        ..., min_length=2, max_length=2, description="State searched"
+    )
+    search_insurance: str = Field(..., description="Insurance provider searched")
+    click_type: str = Field(
+        default="manual", description="Type of click: manual or auto_redirect"
+    )
+    session_id: Optional[str] = Field(None, description="Unique session identifier")
+    user_agent: Optional[str] = Field(None, description="User agent string")
+    referrer: Optional[str] = Field(None, description="Referrer URL")
+
+
+class ClickTrackingResponse(BaseModel):
+    success: bool
+    message: str
+    click_id: Optional[int] = None
+
+
+class ClickAnalytics(BaseModel):
+    provider_id: int
+    provider_name: str
+    total_clicks: int
+    manual_clicks: int
+    auto_redirects: int
+    unique_users: int
+    avg_clicks_per_user: float
+    top_states: List[str]
+    top_insurances: List[str]
+
+
+class ClickAnalyticsRequest(BaseModel):
+    start_date: Optional[str] = Field(None, description="Start date (YYYY-MM-DD)")
+    end_date: Optional[str] = Field(None, description="End date (YYYY-MM-DD)")
+    provider_id: Optional[int] = Field(None, description="Filter by specific provider")
+    state: Optional[str] = Field(None, description="Filter by specific state")

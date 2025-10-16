@@ -2,12 +2,63 @@
 
 import React from 'react';
 import { DMEProvider } from '../types';
+import { config } from '../config';
 
 interface ResultsListProps {
   results: DMEProvider[];
+  searchData?: {
+    state: string;
+    insurance_provider: string;
+    email: string;
+    session_id?: string;
+  };
 }
 
-export function ResultsList({ results }: ResultsListProps) {
+export function ResultsList({ results, searchData }: ResultsListProps) {
+  const trackClick = async (provider: DMEProvider, clickType: string = 'manual') => {
+    try {
+      if (!searchData) {
+        console.warn('Search data not available for click tracking');
+        return;
+      }
+
+      const clickData = {
+        provider_id: provider.id,
+        user_email: searchData.email,
+        search_state: searchData.state,
+        search_insurance: searchData.insurance_provider,
+        click_type: clickType,
+        session_id: searchData.session_id || `session_${Date.now()}`,
+        user_agent: navigator.userAgent,
+        referrer: document.referrer || window.location.origin,
+      };
+      console.log('Click data:', clickData);
+
+      // Fire and forget - don't block the user's click
+      fetch(`${config.apiUrl}/api/track-click`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(clickData),
+      }).catch((error) => {
+        console.error('Failed to track click:', error);
+        // Don't show error to user - this is just analytics
+      });
+    } catch (error) {
+      console.error('Error preparing click tracking:', error);
+    }
+  };
+
+  const handleProviderClick = async (provider: DMEProvider) => {
+    // Track the click
+    await trackClick(provider, 'manual');
+    
+    // Open the link - let the browser handle it normally
+    window.open(provider.dedicated_link, '_blank', 'noopener,noreferrer');
+  };
+
+
   if (results.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500">
@@ -56,14 +107,12 @@ export function ResultsList({ results }: ResultsListProps) {
               )}
             </div>
           </div>
-          <a 
-            href={provider.dedicated_link}
-            target="_blank"
-            rel="noopener noreferrer" 
-            className="block w-full bg-[#E87F6B] text-white font-gibson text-base py-3 rounded hover:bg-[#e96c54] transition-colors mt-4 text-center"
+          <button
+            onClick={() => handleProviderClick(provider)}
+            className="block w-full bg-[#E87F6B] text-white font-gibson text-base py-3 rounded hover:bg-[#e96c54] transition-colors mt-4 text-center cursor-pointer border-none"
           >
             APPLY NOW
-          </a>
+          </button>
         </div>
       ))}
     </div>
