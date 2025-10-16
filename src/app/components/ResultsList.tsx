@@ -12,13 +12,21 @@ interface ResultsListProps {
     email: string;
     session_id?: string;
   };
+  trackedProviders?: Set<number>;
+  onProviderTracked?: (providerId: number) => void;
 }
 
-export function ResultsList({ results, searchData }: ResultsListProps) {
+export function ResultsList({ results, searchData, trackedProviders, onProviderTracked }: ResultsListProps) {
   const trackClick = async (provider: DMEProvider, clickType: string = 'manual') => {
     try {
       if (!searchData) {
         console.warn('Search data not available for click tracking');
+        return;
+      }
+
+      // Check if this provider has already been tracked in this session
+      if (trackedProviders && trackedProviders.has(provider.id)) {
+        console.log(`Skipping duplicate tracking for provider ${provider.dme_name} (ID: ${provider.id}) - already tracked in this session`);
         return;
       }
 
@@ -33,6 +41,11 @@ export function ResultsList({ results, searchData }: ResultsListProps) {
         referrer: document.referrer || window.location.origin,
       };
       console.log('Click data:', clickData);
+
+      // Mark as tracked before making the API call
+      if (onProviderTracked) {
+        onProviderTracked(provider.id);
+      }
 
       // Fire and forget - don't block the user's click
       fetch(`${config.apiUrl}/api/track-click`, {
@@ -53,7 +66,7 @@ export function ResultsList({ results, searchData }: ResultsListProps) {
   const handleProviderClick = async (provider: DMEProvider) => {
     // Track the click
     await trackClick(provider, 'manual');
-    
+
     // Open the link - let the browser handle it normally
     window.open(provider.dedicated_link, '_blank', 'noopener,noreferrer');
   };
