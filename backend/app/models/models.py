@@ -131,8 +131,7 @@ class ClickAnalytics(BaseModel):
     provider_id: int
     provider_name: str
     total_clicks: int
-    manual_clicks: int
-    auto_redirects: int
+    top_referrer: Optional[str] = None
     unique_users: int
     avg_clicks_per_user: float
     top_states: List[str]

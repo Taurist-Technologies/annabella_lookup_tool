@@ -7,8 +7,7 @@ interface ClickAnalytics {
   provider_id: number;
   provider_name: string;
   total_clicks: number;
-  manual_clicks: number;
-  auto_redirects: number;
+  top_referrer: string | null;
   unique_users: number;
   avg_clicks_per_user: number;
   top_states: string[];
@@ -18,8 +17,8 @@ interface ClickAnalytics {
 interface ClickSummary {
   total_clicks_all_time: number;
   clicks_last_30_days: number;
-  manual_clicks_last_30_days: number;
-  auto_redirects_last_30_days: number;
+  babylist_clicks_total: number;
+  breastpumps_clicks_total: number;
   unique_users_last_30_days: number;
   period: string;
 }
@@ -145,15 +144,15 @@ export function AnalyticsDashboard() {
             <p className="text-2xl font-bold text-gray-900">{summary.clicks_last_30_days.toLocaleString()}</p>
           </div>
           <div className="bg-white rounded-lg p-4 border">
-            <h3 className="text-sm font-medium text-gray-500">Manual Clicks</h3>
-            <p className="text-2xl font-bold text-blue-600">{summary.manual_clicks_last_30_days.toLocaleString()}</p>
+            <h3 className="text-sm font-medium text-gray-500">Babylist Clicks (All Time)</h3>
+            <p className="text-2xl font-bold text-blue-600">{summary.babylist_clicks_total.toLocaleString()}</p>
           </div>
           <div className="bg-white rounded-lg p-4 border">
-            <h3 className="text-sm font-medium text-gray-500">Auto Redirects</h3>
-            <p className="text-2xl font-bold text-orange-600">{summary.auto_redirects_last_30_days.toLocaleString()}</p>
+            <h3 className="text-sm font-medium text-gray-500">Breastpumps Clicks (All Time)</h3>
+            <p className="text-2xl font-bold text-orange-600">{summary.breastpumps_clicks_total.toLocaleString()}</p>
           </div>
           <div className="bg-white rounded-lg p-4 border">
-            <h3 className="text-sm font-medium text-gray-500">Unique Users</h3>
+            <h3 className="text-sm font-medium text-gray-500">Unique Users (Last 30 Days)</h3>
             <p className="text-2xl font-bold text-green-600">{summary.unique_users_last_30_days.toLocaleString()}</p>
           </div>
         </div>
@@ -235,10 +234,9 @@ export function AnalyticsDashboard() {
                     <tr>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Provider</th>
                       <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Total Clicks</th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Manual</th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Auto Redirect</th>
                       <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Unique Users</th>
                       <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Avg/User</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Top Referrer</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Top States</th>
                       <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Top Insurances</th>
                     </tr>
@@ -248,10 +246,9 @@ export function AnalyticsDashboard() {
                       <tr key={item.provider_id} className="hover:bg-gray-50">
                         <td className="px-4 py-3 font-medium">{item.provider_name}</td>
                         <td className="px-4 py-3 text-right">{item.total_clicks.toLocaleString()}</td>
-                        <td className="px-4 py-3 text-right text-blue-600">{item.manual_clicks.toLocaleString()}</td>
-                        <td className="px-4 py-3 text-right text-orange-600">{item.auto_redirects.toLocaleString()}</td>
                         <td className="px-4 py-3 text-right text-green-600">{item.unique_users.toLocaleString()}</td>
                         <td className="px-4 py-3 text-right">{item.avg_clicks_per_user.toFixed(1)}</td>
+                        <td className="px-4 py-3 text-gray-600 text-sm">{item.top_referrer || '-'}</td>
                         <td className="px-4 py-3">
                           <div className="flex flex-wrap gap-1">
                             {item.top_states.slice(0, 3).map((state) => (
