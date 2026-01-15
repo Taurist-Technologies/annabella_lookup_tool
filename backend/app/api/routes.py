@@ -521,16 +521,20 @@ async def get_click_summary():
             .eq("name", "Babylist Health")
             .execute()
         )
-        babylist_id = babylist_provider.data[0]["id"] if babylist_provider.data else None
+        babylist_id = (
+            babylist_provider.data[0]["id"] if babylist_provider.data else None
+        )
 
         # Get breastpumps.com provider ID
         breastpumps_provider = (
             supabase.table(providers_table)
             .select("id")
-            .eq("name", "breastpumps.com")
+            .eq("name", "Breastpumps.com")
             .execute()
         )
-        breastpumps_id = breastpumps_provider.data[0]["id"] if breastpumps_provider.data else None
+        breastpumps_id = (
+            breastpumps_provider.data[0]["id"] if breastpumps_provider.data else None
+        )
 
         # Babylist Health clicks (all time)
         babylist_clicks = 0
