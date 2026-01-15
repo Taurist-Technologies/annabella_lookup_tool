@@ -1,8 +1,14 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { DMEProvider } from '../types';
 import { config } from '../config';
+
+interface State {
+  id: number;
+  name: string;
+  abbreviation: string;
+}
 
 interface ResultsListProps {
   results: DMEProvider[];
@@ -14,9 +20,13 @@ interface ResultsListProps {
   };
   trackedProviders?: Set<number>;
   onProviderTracked?: (providerId: number) => void;
+  states?: State[];
 }
 
-export function ResultsList({ results, searchData, trackedProviders, onProviderTracked }: ResultsListProps) {
+export function ResultsList({ results, searchData, trackedProviders, onProviderTracked, states }: ResultsListProps) {
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  const [redirectStatus, setRedirectStatus] = useState('');
+
   const trackClick = async (provider: DMEProvider, clickType: string = 'manual') => {
     try {
       if (!searchData) {
@@ -63,12 +73,108 @@ export function ResultsList({ results, searchData, trackedProviders, onProviderT
     }
   };
 
+  // Handle breastpumps.com WordPress redirect flow
+  const handleBreastpumpsRedirect = async (provider: DMEProvider) => {
+    if (!searchData) {
+      console.warn('Search data not available for breastpumps redirect');
+      window.open(provider.dedicated_link, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
+    setIsRedirecting(true);
+    setRedirectStatus('Connecting to insurance provider...');
+
+    try {
+      // Step 1: Get providers by state from WordPress
+      const wpResponse = await fetch(
+        config.wordpress.endpoints.providersByState(searchData.state)
+      );
+
+      if (!wpResponse.ok) {
+        console.error('WordPress API call failed:', wpResponse.status);
+        throw new Error('WordPress API failed');
+      }
+
+      const wpData = await wpResponse.json();
+      console.log('WordPress API response:', wpData);
+
+      // Step 2: Find matching insurance provider
+      const matchingProviders = wpData.providers.filter((item: any) =>
+        item.provider_display_name.toLowerCase() === searchData.insurance_provider.toLowerCase()
+      );
+
+      console.log(`Matched providers for ${searchData.insurance_provider}:`, matchingProviders);
+
+      if (matchingProviders.length === 0 || !matchingProviders[0].id) {
+        console.log('No matching provider found in WordPress API response');
+        throw new Error('No matching provider');
+      }
+
+      // Step 3: Create order
+      setRedirectStatus('Confirming your information...');
+
+      // Find full state name from abbreviation
+      const stateData = states?.find(state => state.abbreviation === searchData.state);
+      const fullStateName = stateData ? stateData.name : searchData.state;
+
+      const unixTimestamp = Math.floor(Date.now() / 1000);
+      const orderData = {
+        extId: `${unixTimestamp}-ANB`,
+        firstName: "",
+        lastName: "",
+        momEmail: searchData.email,
+        provider: matchingProviders[0].id,
+        momAddressState: fullStateName,
+        referralDetails: ""
+      };
+
+      const orderResponse = await fetch(config.wordpress.endpoints.order, {
+        method: 'POST',
+        headers: {
+          'X-HBE-API-Key': config.wordpress.orderAPI,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(orderData)
+      });
+
+      if (!orderResponse.ok) {
+        console.error('Order API call failed:', orderResponse.status);
+        throw new Error('Order API failed');
+      }
+
+      const orderResult = await orderResponse.json();
+      console.log('Order API response:', orderResult);
+
+      // Step 4: Redirect if we have a resume token
+      if (orderResult.resume_token) {
+        setRedirectStatus('Redirecting to Insurance Portal...');
+        setTimeout(() => {
+          window.location.href = config.wordpress.endpoints.redirect(orderResult.resume_token);
+        }, 500);
+      } else {
+        console.error('No resume_token in order API response');
+        throw new Error('No resume token');
+      }
+    } catch (error) {
+      console.error('Breastpumps redirect flow failed:', error);
+      // Silently fall back to dedicated link
+      setIsRedirecting(false);
+      setRedirectStatus('');
+      window.open(provider.dedicated_link, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   const handleProviderClick = async (provider: DMEProvider) => {
     // Track the click
     await trackClick(provider, 'manual');
 
-    // Open the link - let the browser handle it normally
-    window.open(provider.dedicated_link, '_blank', 'noopener,noreferrer');
+    // Check if this is breastpumps.com - use WordPress redirect flow
+    if (provider.dme_name.toLowerCase() === 'breastpumps.com') {
+      await handleBreastpumpsRedirect(provider);
+    } else {
+      // Open the link normally for other providers
+      window.open(provider.dedicated_link, '_blank', 'noopener,noreferrer');
+    }
   };
 
 
@@ -81,8 +187,19 @@ export function ResultsList({ results, searchData, trackedProviders, onProviderT
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {results.map((provider) => (
+    <>
+      {/* Loading overlay for breastpumps.com redirect */}
+      {isRedirecting && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-white">
+          <div className="flex flex-col items-center gap-4">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#E87F6B] border-t-transparent"></div>
+            <p className="font-gibson text-gray-700 text-lg">{redirectStatus}</p>
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {results.map((provider) => (
         <div
           key={provider.id}
           className="bg-white rounded-lg p-4 flex flex-col h-full"
@@ -120,14 +237,15 @@ export function ResultsList({ results, searchData, trackedProviders, onProviderT
               )}
             </div>
           </div>
-          <button
-            onClick={() => handleProviderClick(provider)}
-            className="block w-full bg-[#E87F6B] text-white font-gibson text-base py-3 rounded hover:bg-[#e96c54] transition-colors mt-4 text-center cursor-pointer border-none"
-          >
-            APPLY NOW
-          </button>
-        </div>
-      ))}
-    </div>
+            <button
+              onClick={() => handleProviderClick(provider)}
+              className="block w-full bg-[#E87F6B] text-white font-gibson text-base py-3 rounded hover:bg-[#e96c54] transition-colors mt-4 text-center cursor-pointer border-none"
+            >
+              APPLY NOW
+            </button>
+          </div>
+        ))}
+      </div>
+    </>
   );
 } 

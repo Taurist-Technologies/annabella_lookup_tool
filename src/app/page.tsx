@@ -5,7 +5,7 @@ import { SearchForm } from './components/SearchForm';
 import { ResultsList } from './components/ResultsList';
 import { DMEProvider } from './types';
 import { config } from './config';
-import { trackProviderClick, findProviderIdByName, getSessionId } from './utils/clickTracking';
+import { getSessionId } from './utils/clickTracking';
 
 
 
@@ -23,8 +23,6 @@ export default function Home() {
   const [userEmail, setUserEmail] = useState<string>('');
   const [isReturningUser, setIsReturningUser] = useState(false);
   const [states, setStates] = useState<State[]>([]);
-  const [isBreastpumpsFlow, setIsBreastpumpsFlow] = useState(false);
-  const [loadingStatus, setLoadingStatus] = useState<string>('Processing your request...');
   const [searchData, setSearchData] = useState<any>(null); // Store search context
   const [trackedProviders, setTrackedProviders] = useState<Set<number>>(new Set()); // Track which providers have been clicked/tracked
 
@@ -51,8 +49,6 @@ export default function Home() {
   }) => {
     setLoading(true);
     setError(null);
-    setIsBreastpumpsFlow(false);
-    setLoadingStatus('Processing your request...');
 
     // Reset tracked providers for new search
     setTrackedProviders(new Set());
@@ -80,167 +76,15 @@ export default function Home() {
 
       const data = await response.json();
       console.log('API response:', data);
-      
-      // Check if Breastpumps.com is in the results
-      const hasBreastpumps = data.some((provider: DMEProvider) => 
-        provider.dme_name.toLowerCase() === 'breastpumps.com'
-      );
-      
-      if (hasBreastpumps) {
-        setIsBreastpumpsFlow(true);
-        setLoadingStatus('Connecting to insurance provider...');
-        console.log('Breastpumps.com found in results, making WordPress API call...');
 
-        // Track the auto-redirect click BEFORE the redirect happens
-        const breastpumpsProviderId = findProviderIdByName(data, 'breastpumps.com');
-        if (breastpumpsProviderId) {
-          trackProviderClick({
-            provider_id: breastpumpsProviderId,
-            provider_name: 'breastpumps.com',
-            user_email: formData.email,
-            search_state: formData.state,
-            search_insurance: formData.insurance_provider,
-            click_type: 'auto_redirect',
-            session_id: sessionId,
-          });
-          // Mark this provider as already tracked
-          setTrackedProviders(prev => new Set(prev).add(breastpumpsProviderId));
-        }
-        
-        try {
-          // Make the WordPress API call with the state abbreviation
-          const wpResponse = await fetch(
-            `${config.wordpress.endpoints.providersByState(formData.state)}`
-          );
-          
-          if (wpResponse.ok) {
-            const wpData = await wpResponse.json();
-            console.log('WordPress API response:', wpData);
-            
-            // Filter for matching insurance provider names
-            const matchingProviders = wpData.providers.filter((item: any) => 
-              item.provider_display_name.toLowerCase() === formData.insurance_provider.toLowerCase()
-            );
-            
-            console.log(`Matched providers for ${formData.insurance_provider}:`, matchingProviders);
-            
-            // If we have a matching provider, make the order API call
-            if (matchingProviders.length > 0 && matchingProviders[0].id) {
-              setLoadingStatus('Confirming your information...');
-              console.log('Making order API call with provider ID:', matchingProviders[0].id);
-              
-              // Find the full state name from abbreviation
-              const stateData = states.find(state => state.abbreviation === formData.state);
-              const fullStateName = stateData ? stateData.name : formData.state;
-              
-              // Create the order data
-              const unixTimestamp = Math.floor(Date.now() / 1000);
-              const orderData = {
-                extId: `${unixTimestamp}-ANB`,
-                firstName: "",
-                lastName: "",
-                momEmail: formData.email,
-                provider: matchingProviders[0].id,
-                momAddressState: fullStateName,
-                referralDetails: ""
-              };
-              
-              try {
-                const orderResponse = await fetch(`${config.wordpress.endpoints.order}`, {
-                  method: 'POST',
-                  headers: {
-                    'X-HBE-API-Key': `${config.wordpress.orderAPI}`,
-                    'Content-Type': 'application/json'
-                  },
-                  body: JSON.stringify(orderData)
-                });
-                
-                if (orderResponse.ok) {
-                  const orderResult = await orderResponse.json();
-                  console.log(orderData);
-                  console.log('Order API response:', orderResult);
-                  
-                  // Check if resume_token exists and redirect
-                  if (orderResult.resume_token) {
-                    setLoadingStatus('Redirecting to Insurance Portal...');
-                    console.log('Resume token received, redirecting to WordPress site...');
-                    
-                    // Small delay to show the final status before redirect
-                    setTimeout(() => {
-                      window.location.href = `${config.wordpress.endpoints.redirect(orderResult.resume_token)}`;
-                    }, 1000);
-                  } else {
-                    console.error('No resume_token in order API response');
-                    setIsBreastpumpsFlow(false);
-                    setLoading(false);
-                    // Still show results even if redirect failed
-                    setResults(data);
-                    setShowResults(true);
-                    setUserEmail(formData.email);
-                    setIsReturningUser(true);
-                  }
-                } else {
-                  console.error('Order API call failed:', orderResponse.status, orderResponse.statusText);
-                  setIsBreastpumpsFlow(false);
-                  setLoading(false);
-                  // Still show results even if order failed
-                  setResults(data);
-                  setShowResults(true);
-                  setUserEmail(formData.email);
-                  setIsReturningUser(true);
-                }
-              } catch (orderError) {
-                console.error('Error making order API call:', orderError);
-                setIsBreastpumpsFlow(false);
-                setLoading(false);
-                // Still show results even if order failed
-                setResults(data);
-                setShowResults(true);
-                setUserEmail(formData.email);
-                setIsReturningUser(true);
-              }
-            } else {
-              // No matching provider found
-              console.log('No matching provider found in WordPress API response');
-              setIsBreastpumpsFlow(false);
-              setLoading(false);
-              // Still show original results
-              setResults(data);
-              setShowResults(true);
-              setUserEmail(formData.email);
-              setIsReturningUser(true);
-            }
-          } else {
-            console.error('WordPress API call failed:', wpResponse.status, wpResponse.statusText);
-            setIsBreastpumpsFlow(false);
-            setLoading(false);
-            // Still show results even if WordPress API failed
-            setResults(data);
-            setShowResults(true);
-            setUserEmail(formData.email);
-            setIsReturningUser(true);
-          }
-        } catch (wpError) {
-          console.error('Error calling WordPress API:', wpError);
-          setIsBreastpumpsFlow(false);
-          setLoading(false);
-          // Still show results even if WordPress API failed
-          setResults(data);
-          setShowResults(true);
-          setUserEmail(formData.email);
-          setIsReturningUser(true);
-        }
-      } else {
-        // Normal flow - no Breastpumps.com in results
-        setResults(data);
-        setShowResults(true);
-        setUserEmail(formData.email);
-        setIsReturningUser(true);
-        setLoading(false);
-      }
+      // Show all results (including breastpumps.com if present)
+      setResults(data);
+      setShowResults(true);
+      setUserEmail(formData.email);
+      setIsReturningUser(true);
+      setLoading(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
-      setIsBreastpumpsFlow(false);
       setLoading(false);
     }
   };
@@ -250,14 +94,9 @@ export default function Home() {
     <>
       {/* Loading UI - Always rendered, controlled by loading state */}
       {loading && (
-        <div className={`fixed inset-0 flex items-center justify-center z-50 ${
-          isBreastpumpsFlow ? 'bg-white' : 'bg-black bg-opacity-50'
-        }`}>
+        <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
           <div className="flex flex-col items-center gap-4">
             <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#E87F6B] border-t-transparent"></div>
-            {isBreastpumpsFlow && (
-              <p className="font-gibson text-gray-700 text-lg">{loadingStatus}</p>
-            )}
           </div>
         </div>
       )}
@@ -311,7 +150,7 @@ export default function Home() {
                 </button>
               </div>
             ) : (
-              <ResultsList results={results} searchData={searchData} trackedProviders={trackedProviders} onProviderTracked={(providerId) => setTrackedProviders(prev => new Set(prev).add(providerId))} />
+              <ResultsList results={results} searchData={searchData} trackedProviders={trackedProviders} onProviderTracked={(providerId) => setTrackedProviders(prev => new Set(prev).add(providerId))} states={states} />
             )}
           </div>
         </main>
