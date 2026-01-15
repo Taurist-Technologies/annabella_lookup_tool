@@ -467,8 +467,7 @@ async def get_click_analytics(request: ClickAnalyticsRequest):
                     provider_id=row["provider_id"],
                     provider_name=row["provider_name"],
                     total_clicks=row["total_clicks"],
-                    manual_clicks=row["manual_clicks"],
-                    auto_redirects=row["auto_redirects"],
+                    top_referrer=row["top_referrer"],
                     unique_users=row["unique_users"],
                     avg_clicks_per_user=float(row["avg_clicks_per_user"] or 0),
                     top_states=row["top_states"] or [],
@@ -511,22 +510,49 @@ async def get_click_summary():
             .execute()
         )
 
-        # Manual vs auto clicks in last 30 days
-        manual_result = (
-            supabase.table(os.getenv("PROVIDER_CLICKS_TABLE", "provider_clicks"))
-            .select("id", count="exact")
-            .eq("click_type", "manual")
-            .gte("clicked_at", thirty_days_ago.isoformat())
-            .execute()
-        )
+        # Get provider IDs for Babylist Health and breastpumps.com
+        providers_table = os.getenv("PROVIDERS_TABLE", "providers")
+        clicks_table = os.getenv("PROVIDER_CLICKS_TABLE", "provider_clicks")
 
-        auto_result = (
-            supabase.table(os.getenv("PROVIDER_CLICKS_TABLE", "provider_clicks"))
-            .select("id", count="exact")
-            .eq("click_type", "auto_redirect")
-            .gte("clicked_at", thirty_days_ago.isoformat())
+        # Get Babylist Health provider ID
+        babylist_provider = (
+            supabase.table(providers_table)
+            .select("id")
+            .eq("name", "Babylist Health")
             .execute()
         )
+        babylist_id = babylist_provider.data[0]["id"] if babylist_provider.data else None
+
+        # Get breastpumps.com provider ID
+        breastpumps_provider = (
+            supabase.table(providers_table)
+            .select("id")
+            .eq("name", "breastpumps.com")
+            .execute()
+        )
+        breastpumps_id = breastpumps_provider.data[0]["id"] if breastpumps_provider.data else None
+
+        # Babylist Health clicks (all time)
+        babylist_clicks = 0
+        if babylist_id:
+            babylist_result = (
+                supabase.table(clicks_table)
+                .select("id", count="exact")
+                .eq("provider_id", babylist_id)
+                .execute()
+            )
+            babylist_clicks = babylist_result.count or 0
+
+        # breastpumps.com clicks (all time)
+        breastpumps_clicks = 0
+        if breastpumps_id:
+            breastpumps_result = (
+                supabase.table(clicks_table)
+                .select("id", count="exact")
+                .eq("provider_id", breastpumps_id)
+                .execute()
+            )
+            breastpumps_clicks = breastpumps_result.count or 0
 
         # Unique users in last 30 days
         unique_users_result = (
@@ -545,8 +571,8 @@ async def get_click_summary():
         return {
             "total_clicks_all_time": total_result.count or 0,
             "clicks_last_30_days": recent_result.count or 0,
-            "manual_clicks_last_30_days": manual_result.count or 0,
-            "auto_redirects_last_30_days": auto_result.count or 0,
+            "babylist_clicks_total": babylist_clicks,
+            "breastpumps_clicks_total": breastpumps_clicks,
             "unique_users_last_30_days": unique_users,
             "period": "last_30_days",
         }
